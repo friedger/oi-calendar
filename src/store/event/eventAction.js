@@ -5,7 +5,7 @@ import {
   SET_CURRENT_GUESTS,
   USER,
   SET_CONTACTS,
-  VIEW_EVENT,
+  SET_CURRENT_EVENT,
   ADD_CALENDAR,
   INITIALIZE_CHAT
 } from "../ActionTypes";
@@ -106,6 +106,7 @@ export function loadGuestList(guests, eventInfo) {
       ({ profiles, contacts }) => {
         console.log("profiles", profiles);
         dispatch(asAction_setGuests(profiles, eventInfo));
+        dispatch(asAction_setGuests(profiles, eventInfo));
       },
       error => {
         console.log("load guest list failed", error);
@@ -135,7 +136,7 @@ function asAction_viewEvent(eventInfo, eventType) {
   if (eventType) {
     payload.eventType = eventType;
   }
-  return { type: VIEW_EVENT, payload };
+  return { type: SET_CURRENT_EVENT, payload };
 }
 
 function asAction_setEvents(allEvents) {

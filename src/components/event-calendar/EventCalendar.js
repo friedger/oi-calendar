@@ -11,8 +11,7 @@ class EventCalendar extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      showInstructions: true,
-      eventModal: undefined
+      showInstructions: true
     };
 
     this.bound = [
@@ -30,20 +29,9 @@ class EventCalendar extends Component {
     this.props.initializeEvents();
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.inviteSuccess) {
-      this.setState({ eventModal: undefined });
-    }
-    if (nextProps.currentEvent) {
-      const eventType = nextProps.currentEventType || "view";
-      const eventInfo = nextProps.currentEvent;
-      this.setState({
-        eventModal: { eventType, eventInfo }
-      });
-    }
-  }
   handleHide() {
-    this.setState({ eventModal: undefined });
+    const { unsetCurrentEvent } = this.props;
+    unsetCurrentEvent();
   }
 
   handleHideInstructions() {
@@ -51,23 +39,21 @@ class EventCalendar extends Component {
   }
 
   handleEditEvent(event) {
+    const { setEventModal } = this.props;
     console.log("handleEditEvent", event);
-    this.setState({
-      eventModal: {
-        eventType: event.mode || "edit",
-        eventInfo: event
-      }
+    setEventModal({
+      eventType: event.mode || "edit",
+      eventInfo: event
     });
   }
 
   handleAddEvent(slotInfo) {
+    const { setEventModal } = this.props;
     console.log("handleAddEvent");
     slotInfo.uid = uuid();
-    this.setState({
-      eventModal: {
-        eventType: "add",
-        eventInfo: slotInfo
-      }
+    setEventModal({
+      eventType: "add",
+      eventInfo: slotInfo
     });
   }
 
@@ -95,7 +81,8 @@ class EventCalendar extends Component {
   }
 
   render() {
-    const { signedIn, views } = this.props;
+    console.log("[EventCalendar.render]", this.props);
+    const { signedIn, views, eventModal } = this.props;
     const { showInstructions } = this.state;
     const { EventDetails } = views;
     const {
@@ -163,9 +150,8 @@ class EventCalendar extends Component {
             </Panel.Body>
           </Panel>
         )}
-        {this.state.eventModal && (
-          <EventDetails handleHide={handleHide} {...this.state.eventModal} />
-        )}
+        {console.log("[props.eventModal]", eventModal)}
+        {eventModal && <EventDetails handleHide={handleHide} />}
         <BigCalendar
           localizer={localizer}
           selectable={this.props.signedIn}

@@ -23,13 +23,6 @@ function checkHasGuests(str) {
   return guests.filter(g => g.length > 0).length > 0;
 }
 
-const eventDefaults = {
-  start: moment(),
-  end: moment(),
-  allDay: false,
-  hexColor: "#265985"
-};
-
 class EventDetails extends Component {
   constructor(props) {
     super(props);
@@ -38,11 +31,10 @@ class EventDetails extends Component {
     this.state = {
       showModal: this.props.showModal,
       showInvitesModal: false,
-      eventDetail: Object.assign({}, eventDefaults, eventInfo),
       sending: false
     };
 
-    console.log(eventInfo);
+    // console.log(eventInfo);
 
     this.bound = [
       "handleDataChange",
@@ -60,22 +52,7 @@ class EventDetails extends Component {
 
   componentWillReceiveProps(nextProps) {
     const { showInvitesModal, sending } = this.state;
-
-    console.log(
-      "showInvitesModal",
-      showInvitesModal,
-      nextProps.inviteSuccess,
-      !!nextProps.inviteError
-    );
-    console.log(
-      "willReceiveProps",
-      nextProps,
-      JSON.stringify(nextProps.eventInfo),
-      nextProps.eventType
-    );
-
     this.setState({
-      eventDetail: Object.assign({}, eventDefaults, nextProps.eventInfo),
       showInvitesModal:
         showInvitesModal &&
         !(!!nextProps.inviteSuccess || !!nextProps.inviteError),
@@ -85,7 +62,7 @@ class EventDetails extends Component {
   }
 
   handleDataChange(e, ref) {
-    var { eventDetail } = this.state;
+    var { eventDetail } = this.props;
     var val = "";
     if (ref !== "allDay" && ref !== "public") {
       if (ref === "start" || ref === "end") {
@@ -102,15 +79,15 @@ class EventDetails extends Component {
   }
 
   addEvent() {
-    const { eventDetail } = this.state;
-    const { addEvent, handleHide } = this.props;
+    const { addEvent, handleHide, eventDetail } = this.props;
+    const { popInvitesModal } = this.bound;
     const { guests, noInvites } = eventDetail;
     console.log("add event", eventDetail.noInvites, checkHasGuests(guests));
     if (noInvites || !checkHasGuests(guests)) {
       addEvent(eventDetail);
       handleHide();
     } else {
-      this.popInvitesModal(eventDetail);
+      popInvitesModal(eventDetail);
     }
   }
 
@@ -125,33 +102,36 @@ class EventDetails extends Component {
     handleHide();
   }
 
-  updateEvent(obj) {
+  updateEvent(eventDetail) {
+    console.log("[updateEvent]", eventDetail);
     const { updateEvent, handleHide } = this.props;
-    updateEvent(obj);
+    updateEvent(eventDetail);
     handleHide();
   }
 
   popInvitesModal(eventDetail) {
+    console.log("[popInvitesModal]", eventDetail);
+    const { loadGuestList, updateCurrentEvent } = this.props;
+
+    // updateCurrentEvent(eventDetail);
     let { guests } = eventDetail;
-    const { loadGuestList } = this.props;
     if (typeof guests !== "string") {
       guests = "";
     }
     const guestList = guests.toLowerCase().split(/[,\s]+/g);
-    console.log("dipatch load guest list", guestList);
+    console.log("dispatch load guest list", guestList, eventDetail);
     loadGuestList(guestList, eventDetail);
     this.setState({ showInvitesModal: true });
   }
 
   handleInvitesHide() {
-    const { eventDetail } = this.state;
+    const { eventDetail } = this.props;
     this.setState({ showInvitesModal: false });
     eventDetail.noInvites = true;
   }
 
   sendInvites() {
-    const { eventDetail } = this.state;
-    const { eventType, sendInvites } = this.props;
+    const { sendInvites, eventType, eventDetail } = this.props;
     this.setState({ sending: true });
     const guestsString = eventDetail.guests;
     const guests = guestsStringToArray(guestsString);
@@ -159,8 +139,15 @@ class EventDetails extends Component {
   }
 
   render() {
-    const { eventDetail, showInvitesModal, sending } = this.state;
-    const { views, handleHide, inviteError, eventType } = this.props;
+    console.log("[EVENDETAILS.render]", this.props);
+    const { showInvitesModal, sending } = this.state;
+    const {
+      views,
+      handleHide,
+      inviteError,
+      eventType,
+      eventDetail
+    } = this.props;
     const { GuestList } = views;
     const {
       handleDataChange,

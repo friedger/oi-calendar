@@ -3,7 +3,7 @@ import { SET_VIEW } from "../ActionTypes";
 let initialState = {};
 
 export default function reduce(state = initialState, action = {}) {
-  console.log("LazyReducer", state);
+  // console.log("LazyReducer", state);
   let newState = state;
   let { type, payload } = action;
   switch (type) {
