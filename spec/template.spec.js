@@ -1,5 +1,15 @@
 var assert = require("assert");
 
+import {XXXX}
+
+/*
+import { createInitialStore } from "../store/storeManager";
+import { xxxx } from "../store/event/eventAction";
+import { xxxx } from "../store/auth/authtAction";
+let store = createInitialStore();
+
+store.dispatch({type: XXXXX})
+*/
 describe("index test", () => {
   describe("sayHello function", () => {
     it("should say Hello guys!", () => {

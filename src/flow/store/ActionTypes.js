@@ -1,5 +1,5 @@
 // Views
-export const SET_VIEW = "view.SET_VIEW";
+export const SET_LAZY_VIEW = "view.SET_LAZY_VIEW";
 // Auth
 export const AUTH_SIGN_IN = "auth.SIGN_IN";
 export const AUTH_SIGN_OUT = "auth.SIGN_OUT";

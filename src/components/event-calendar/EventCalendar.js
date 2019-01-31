@@ -3,7 +3,7 @@ import moment from "moment";
 import { Panel, Grid, Row, Col } from "react-bootstrap";
 import BigCalendar from "react-big-calendar";
 import "react-big-calendar/lib/css/react-big-calendar.css";
-import { uuid } from "../../io/eventFN";
+import { uuid } from "../../flow/io/eventFN";
 let localizer = BigCalendar.momentLocalizer(moment);
 let allViews = Object.keys(BigCalendar.Views).map(k => BigCalendar.Views[k]);
 

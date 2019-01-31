@@ -1,6 +1,5 @@
 import { connect } from "react-redux";
-import { signUserIn, signUserOut } from "../store/auth/authAction";
-import UserProfile from "../components/auth-user-profile/UserProfile";
+import { signUserIn, signUserOut } from "../../flow/store/auth/authAction";
 
 export default connect(
   (state, redux) => {
@@ -23,4 +22,4 @@ export default connect(
       userSignOut: () => dispatch(signUserOut())
     };
   }
-)(UserProfile);
+);

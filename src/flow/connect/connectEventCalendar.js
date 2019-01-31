@@ -1,7 +1,9 @@
 import { connect } from "react-redux";
-import EventCalendar from "../components/event-calendar/EventCalendar";
 
-import { UNSET_CURRENT_EVENT, SET_CURRENT_EVENT } from "../store/ActionTypes";
+import {
+  UNSET_CURRENT_EVENT,
+  SET_CURRENT_EVENT
+} from "../../flow/store/ActionTypes";
 
 export default connect(
   (state, redux) => {
@@ -45,4 +47,4 @@ export default connect(
       }
     };
   }
-)(EventCalendar);
+);

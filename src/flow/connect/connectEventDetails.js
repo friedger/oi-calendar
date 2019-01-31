@@ -1,7 +1,6 @@
 import { connect } from "react-redux";
 import moment from "moment";
-import EventDetails from "../components/event-details/EventDetails";
-import { SET_CURRENT_EVENT } from "../store/ActionTypes";
+import { SET_CURRENT_EVENT } from "../../flow/store/ActionTypes";
 
 import {
   loadGuestList,
@@ -9,7 +8,7 @@ import {
   addEvent,
   deleteEvent,
   updateEvent
-} from "../store/event/eventAction";
+} from "../../flow/store/event/eventAction";
 
 const eventDefaults = {
   start: moment(),
@@ -52,4 +51,4 @@ export default connect(
       updateEvent: obj => dispatch(updateEvent(obj))
     };
   }
-)(EventDetails);
+);
