@@ -4,7 +4,7 @@ import {XXXX}
 
 /*
 import { createInitialStore } from "../store/storeManager";
-import { xxxx } from "../store/event/eventAction";
+import { xxxx } from "../store/event/eventActionLazy";
 import { xxxx } from "../store/auth/authtAction";
 let store = createInitialStore();
 

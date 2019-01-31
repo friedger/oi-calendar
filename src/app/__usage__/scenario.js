@@ -8,7 +8,7 @@ import App from "../App";
 // import ConnectedGuestList from "../redux-guest-list";
 
 // import EventDetails from "../../components/event-details/EventDetails";
-// import { LoadGuestList, SendInvites } from "../../store/event/eventAction";
+// import { LoadGuestList, SendInvites } from "../../store/event/eventActionLazy";
 
 // import moment from "moment";
 // import * as blockstack from "blockstack";

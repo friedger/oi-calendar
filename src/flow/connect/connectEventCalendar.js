@@ -1,9 +1,6 @@
 import { connect } from "react-redux";
 
-import {
-  UNSET_CURRENT_EVENT,
-  SET_CURRENT_EVENT
-} from "../../flow/store/ActionTypes";
+import { setCurrentEvent } from "../store/event/eventAction";
 
 export default connect(
   (state, redux) => {
@@ -31,19 +28,13 @@ export default connect(
   dispatch => {
     return {
       initializeEvents: () => {},
-      unsetCurrentEvent: () => {
-        dispatch({ type: UNSET_CURRENT_EVENT });
-      },
-      setEventModal: eventModal => {
-        console.log("[setEventModal]", eventModal);
+      pickEventModal: eventModal => {
+        console.log("[pickEventModal]", eventModal);
         const {
           eventType: currentEventType,
           eventInfo: currentEvent
         } = eventModal;
-        dispatch({
-          type: SET_CURRENT_EVENT,
-          payload: { currentEvent, currentEventType }
-        });
+        dispatch(setCurrentEvent({ currentEvent, currentEventType }));
       }
     };
   }

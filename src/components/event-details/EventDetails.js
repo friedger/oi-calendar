@@ -39,6 +39,7 @@ class EventDetails extends Component {
     this.bound = [
       "handleDataChange",
       "handleInvitesHide",
+      "handleClose",
       "popInvitesModal",
       "sendInvites",
       "addEvent",
@@ -50,6 +51,11 @@ class EventDetails extends Component {
     }, {});
   }
 
+  handleClose() {
+    console.log("HANDLE_CLOSE");
+    const { unsetCurrentEvent } = this.props;
+    unsetCurrentEvent();
+  }
   componentWillReceiveProps(nextProps) {
     const { showInvitesModal, sending } = this.state;
     this.setState({
@@ -79,13 +85,13 @@ class EventDetails extends Component {
   }
 
   addEvent() {
-    const { addEvent, handleHide, eventDetail } = this.props;
-    const { popInvitesModal } = this.bound;
+    const { addEvent, eventDetail } = this.props;
+    const { popInvitesModal, handleClose } = this.bound;
     const { guests, noInvites } = eventDetail;
     console.log("add event", eventDetail.noInvites, checkHasGuests(guests));
     if (noInvites || !checkHasGuests(guests)) {
       addEvent(eventDetail);
-      handleHide();
+      handleClose();
     } else {
       popInvitesModal(eventDetail);
     }
@@ -97,16 +103,18 @@ class EventDetails extends Component {
 
   deleteEvent(obj) {
     console.log("deleteEvent");
-    const { deleteEvent, handleHide } = this.props;
+    const { handleClose } = this.bound;
+    const { deleteEvent } = this.props;
     deleteEvent(obj);
-    handleHide();
+    handleClose();
   }
 
   updateEvent(eventDetail) {
     console.log("[updateEvent]", eventDetail);
-    const { updateEvent, handleHide } = this.props;
+    const { handleClose } = this.bound;
+    const { updateEvent } = this.props;
     updateEvent(eventDetail);
-    handleHide();
+    handleClose();
   }
 
   popInvitesModal(eventDetail) {
@@ -120,7 +128,12 @@ class EventDetails extends Component {
     }
     const guestList = guests.toLowerCase().split(/[,\s]+/g);
     console.log("dispatch load guest list", guestList, eventDetail);
-    loadGuestList(guestList, eventDetail);
+    loadGuestList(guestList, ({ profiles, contacts }) => {
+      console.log("profiles", profiles);
+      // this.setState({})
+      // dispatch(setGuestList);
+      // dispatch(asAction_setGuests(profiles, eventInfo));
+    });
     this.setState({ showInvitesModal: true });
   }
 
@@ -141,13 +154,8 @@ class EventDetails extends Component {
   render() {
     console.log("[EVENDETAILS.render]", this.props);
     const { showInvitesModal, sending } = this.state;
-    const {
-      views,
-      handleHide,
-      inviteError,
-      eventType,
-      eventDetail
-    } = this.props;
+    const { handleClose } = this.bound;
+    const { views, inviteError, eventType, eventDetail } = this.props;
     const { GuestList } = views;
     const {
       handleDataChange,
@@ -180,7 +188,7 @@ class EventDetails extends Component {
       }
     }
     return (
-      <Modal show={true} onHide={handleHide}>
+      <Modal show={true} onHide={handleClose}>
         <Modal.Header closeButton>
           <Modal.Title id="contained-modal-title">Event Details</Modal.Title>
         </Modal.Header>
@@ -294,7 +302,7 @@ class EventDetails extends Component {
               </Button>
             </React.Fragment>
           )}
-          <Button onClick={handleHide}>Close</Button>
+          <Button onClick={handleClose}>Close</Button>
         </Modal.Footer>
 
         <Modal show={showInvitesModal} onHide={handleInvitesHide}>
@@ -305,7 +313,7 @@ class EventDetails extends Component {
           </Modal.Header>
           <Modal.Body>
             Send invites according to their Blockstack settings:
-            <GuestList guests={eventDetail.guests} />
+            {GuestList && <GuestList guests={eventDetail.guests} />}
             {sending && !inviteError && <ProgressBar active now={50} />}
             {inviteError && inviteErrorMsg}
             <Modal.Footer>

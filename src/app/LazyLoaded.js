@@ -14,7 +14,7 @@ import connectUserProfile from "../flow/connect/connectUserProfile";
 import {
   initializeEvents,
   initializeChat
-} from "../flow/store/event/eventAction";
+} from "../flow/store/event/eventActionLazy";
 
 export function initializeLazy(store) {
   store.dispatch({

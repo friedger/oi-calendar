@@ -1,6 +1,7 @@
 import { connect } from "react-redux";
 import moment from "moment";
-import { SET_CURRENT_EVENT } from "../../flow/store/ActionTypes";
+
+import { setCurrentEvent, unsetCurrentEvent } from "../store/event/eventAction";
 
 import {
   loadGuestList,
@@ -8,7 +9,7 @@ import {
   addEvent,
   deleteEvent,
   updateEvent
-} from "../../flow/store/event/eventAction";
+} from "../../flow/store/event/eventActionLazy";
 
 const eventDefaults = {
   start: moment(),
@@ -33,14 +34,17 @@ export default connect(
       eventType: currentEventType
     };
   },
-  dispatch => {
+  (dispatch, redux) => {
     return {
-      loadGuestList: (guests, details) => {
-        console.log("[loadGuestList]", guests, details);
-        dispatch(loadGuestList(guests, details));
+      unsetCurrentEvent: () => {
+        dispatch(unsetCurrentEvent());
+      },
+      loadGuestList: (guests, asyncReturn) => {
+        const contacts = redux.store.getState().events.contacts;
+        loadGuestList(guests, contacts, asyncReturn);
       },
       updateCurrentEvent: eventDetail => {
-        dispatch({ type: SET_CURRENT_EVENT, payload: eventDetail });
+        dispatch(setCurrentEvent(eventDetail));
       },
       sendInvites: (details, guests, eventType) =>
         dispatch(sendInvites(details, guests, eventType)),

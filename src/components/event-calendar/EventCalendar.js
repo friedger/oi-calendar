@@ -15,7 +15,6 @@ class EventCalendar extends Component {
     };
 
     this.bound = [
-      "handleHide",
       "handleHideInstructions",
       "handleAddEvent",
       "handleEditEvent"
@@ -29,29 +28,24 @@ class EventCalendar extends Component {
     this.props.initializeEvents();
   }
 
-  handleHide() {
-    const { unsetCurrentEvent } = this.props;
-    unsetCurrentEvent();
-  }
-
   handleHideInstructions() {
     this.setState({ showInstructions: false });
   }
 
   handleEditEvent(event) {
-    const { setEventModal } = this.props;
+    const { pickEventModal } = this.props;
     console.log("handleEditEvent", event);
-    setEventModal({
+    pickEventModal({
       eventType: event.mode || "edit",
       eventInfo: event
     });
   }
 
   handleAddEvent(slotInfo) {
-    const { setEventModal } = this.props;
+    const { pickEventModal } = this.props;
     console.log("handleAddEvent");
     slotInfo.uid = uuid();
-    setEventModal({
+    pickEventModal({
       eventType: "add",
       eventInfo: slotInfo
     });
@@ -86,7 +80,6 @@ class EventCalendar extends Component {
     const { showInstructions } = this.state;
     const { EventDetails } = views;
     const {
-      handleHide,
       handleHideInstructions,
       handleEditEvent,
       handleAddEvent
@@ -151,7 +144,7 @@ class EventCalendar extends Component {
           </Panel>
         )}
         {console.log("[props.eventModal]", eventModal)}
-        {eventModal && <EventDetails handleHide={handleHide} />}
+        {eventModal && <EventDetails />}
         <BigCalendar
           localizer={localizer}
           selectable={this.props.signedIn}
