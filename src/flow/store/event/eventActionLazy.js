@@ -1,8 +1,5 @@
 import {
   SET_EVENTS,
-  INVITES_SENT_OK,
-  INVITES_SENT_FAIL,
-  SET_CURRENT_GUESTS,
   USER,
   SET_CURRENT_EVENT,
   SHOW_SETTINGS_ADD_CALENDAR,
@@ -21,9 +18,6 @@ import {
   publishEvents,
   handleIntentsInQueryString,
   importCalendarEvents,
-  sendInvitesToGuests,
-  loadGuestProfiles,
-  fetchContactData,
   updatePublicEvent,
   removePublicEvent,
   loadPublicCalendar,
@@ -59,71 +53,6 @@ export function initializeChat() {
     let chat = createSessionChat();
     dispatch(asAction_initializeChat(chat));
   };
-}
-
-// #########################
-// INVITES
-// #########################
-
-function asAction_invitesSentOk(eventInfo, type) {
-  return {
-    type: INVITES_SENT_OK,
-    payload: { eventInfo, type }
-  };
-}
-
-function asAction_invitesSentFail(error) {
-  return {
-    type: INVITES_SENT_FAIL,
-    payload: { error }
-  };
-}
-
-export function sendInvites(eventInfo, guests, type) {
-  return async (dispatch, getState) => {
-    const state = getState();
-    sendInvitesToGuests(
-      state.events.contacts,
-      state.auth.user,
-      eventInfo,
-      guests,
-      state.events.userSessionChat
-    ).then(
-      ({ eventInfo, contacts }) => {
-        let { allEvents } = getState();
-        if (type === "add") {
-          allEvents[eventInfo.uid] = eventInfo;
-          saveEvents("default", allEvents);
-        }
-        dispatch(asAction_invitesSentOk(allEvents));
-      },
-      error => {
-        dispatch(asAction_invitesSentFail(error));
-      }
-    );
-  };
-}
-
-// #########################
-// GUESTS
-// #########################
-function asAction_setGuests(profiles, eventInfo) {
-  return {
-    type: SET_CURRENT_GUESTS,
-    payload: { profiles, eventInfo }
-  };
-}
-
-export function loadGuestList(guests, contacts, asyncReturn) {
-  console.log("loadGuestList", guests, contacts);
-  loadGuestProfiles(guests, contacts).then(
-    ({ profiles, contacts }) => {
-      asyncReturn({ profiles, contacts });
-    },
-    error => {
-      console.log("load guest list failed", error);
-    }
-  );
 }
 
 // ################
@@ -263,6 +192,17 @@ function loadCalendarData(calendars) {
       return { ...acc, ...events };
     }, {});
   });
+}
+
+// ################
+// Events
+// ################
+
+export function saveAllEvents(allEvents, type = "default") {
+  return (dispatch, getState) => {
+    saveEvents("default", allEvents);
+    dispatch(asAction_setEvents(allEvents));
+  };
 }
 
 // ################

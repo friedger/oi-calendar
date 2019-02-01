@@ -4,12 +4,16 @@ import moment from "moment";
 import { setCurrentEvent, unsetCurrentEvent } from "../store/event/eventAction";
 
 import {
-  loadGuestList,
-  sendInvites,
   addEvent,
   deleteEvent,
-  updateEvent
+  updateEvent,
+  saveAllEvents
 } from "../../flow/store/event/eventActionLazy";
+
+import {
+  sendInvites,
+  loadGuestList
+} from "../../flow/store/event/contactActionLazy";
 
 const eventDefaults = {
   start: moment(),
@@ -46,8 +50,14 @@ export default connect(
       updateCurrentEvent: eventDetail => {
         dispatch(setCurrentEvent(eventDetail));
       },
-      sendInvites: (details, guests, eventType) =>
-        dispatch(sendInvites(details, guests, eventType)),
+      sendInvites: (eventInfo, guests, actionType) =>
+        dispatch(sendInvites(eventInfo, guests)).then(() => {
+          let { allEvents } = redux.store.getState().events;
+          if (actionType === "add") {
+            allEvents[eventInfo.uid] = eventInfo;
+          }
+          dispatch(saveAllEvents(allEvents));
+        }),
       deleteEvent: obj => dispatch(deleteEvent(obj)),
       addEvent: obj => {
         dispatch(addEvent(obj));

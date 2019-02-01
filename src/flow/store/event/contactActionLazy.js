@@ -1,6 +1,16 @@
-import { SET_CONTACTS } from "../ActionTypes";
+import {
+  SET_CONTACTS,
+  INVITES_SENT_OK,
+  INVITES_SENT_FAIL,
+  SET_CURRENT_GUESTS
+} from "../ActionTypes";
 
-import { fetchContactData, publishContacts } from "../../io/event";
+import {
+  fetchContactData,
+  publishContacts,
+  sendInvitesToGuests,
+  loadGuestProfiles
+} from "../../io/event";
 
 function asAction_setContacts(contacts) {
   return { type: SET_CONTACTS, payload: { contacts } };
@@ -44,4 +54,66 @@ export function deleteContacts(deleteList) {
       dispatch(asAction_setContacts(contacts));
     });
   };
+}
+
+// #########################
+// INVITES
+// #########################
+
+function asAction_invitesSentOk(eventInfo, type) {
+  return {
+    type: INVITES_SENT_OK,
+    payload: { eventInfo, type }
+  };
+}
+
+function asAction_invitesSentFail(error) {
+  return {
+    type: INVITES_SENT_FAIL,
+    payload: { error }
+  };
+}
+
+export function sendInvites(eventInfo, guests) {
+  return async (dispatch, getState) => {
+    const state = getState();
+    sendInvitesToGuests(
+      state.events.contacts,
+      state.auth.user,
+      eventInfo,
+      guests,
+      state.events.userSessionChat
+    ).then(
+      ({ eventInfo, contacts }) => {
+        dispatch(asAction_invitesSentOk());
+        return Promise.resolve();
+      },
+      error => {
+        dispatch(asAction_invitesSentFail(error));
+        return Promise.reject(error);
+      }
+    );
+  };
+}
+
+// #########################
+// GUESTS
+// #########################
+function asAction_setGuests(profiles, eventInfo) {
+  return {
+    type: SET_CURRENT_GUESTS,
+    payload: { profiles, eventInfo }
+  };
+}
+
+export function loadGuestList(guests, contacts, asyncReturn) {
+  console.log("loadGuestList", guests, contacts);
+  loadGuestProfiles(guests, contacts).then(
+    ({ profiles, contacts }) => {
+      asyncReturn({ profiles, contacts });
+    },
+    error => {
+      console.log("load guest list failed", error);
+    }
+  );
 }
