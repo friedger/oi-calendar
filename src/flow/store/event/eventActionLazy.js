@@ -5,9 +5,15 @@ import {
   SET_CURRENT_GUESTS,
   USER,
   SET_CONTACTS,
-  SET_CURRENT_EVENT,
-  ADD_CALENDAR,
-  INITIALIZE_CHAT
+  VIEW_EVENT,
+  SET_CALENDARS,
+  SHOW_SETTINGS_ADD_CALENDAR,
+  INITIALIZE_CHAT,
+  SHOW_MY_PUBLIC_CALENDAR,
+  SHOW_ALL_CALENDARS,
+  SHOW_SETTINGS,
+  SET_PUBLIC_CALENDAR_EVENTS,
+  SHOW_INSTRUCTIONS
 } from "../ActionTypes";
 
 import { AUTH_CONNECTED, AUTH_DISCONNECTED } from "../ActionTypes";
@@ -15,17 +21,22 @@ import { AUTH_CONNECTED, AUTH_DISCONNECTED } from "../ActionTypes";
 import {
   saveEvents,
   publishEvents,
-  ViewEventInQueryString as handleIntentsInQueryString,
+  handleIntentsInQueryString,
   importCalendarEvents,
-  getCalendars,
+  fetchCalendars,
   publishCalendars,
   sendInvitesToGuests,
   loadGuestProfiles,
   fetchContactData,
   updatePublicEvent,
-  removePublicEvent
-  // addPublicEvent, :WARN: NOT IN USE
+  removePublicEvent,
+  publishContacts,
+  loadPublicCalendar,
+  savePreferences,
+  fetchPreferences,
+  fetchIcsUrl
 } from "../../io/event";
+
 import { createSessionChat } from "../../io/chat";
 import { defaultEvents, defaultCalendars } from "../../io/eventDefaults";
 
@@ -105,6 +116,21 @@ export function loadGuestList(guests, contacts, asyncReturn) {
   });
 }
 
+export function loadGuestListOld(guests, eventInfo) {
+  return async (dispatch, getState) => {
+    const contacts = getState().events.contacts;
+    loadGuestProfiles(guests, contacts).then(
+      ({ profiles, contacts }) => {
+        console.log("profiles", profiles);
+        dispatch(asAction_setGuests(profiles, eventInfo));
+      },
+      error => {
+        console.log("load guest list failed", error);
+      }
+    );
+  };
+}
+
 // ################
 // LOAD USER DATA
 // ################
@@ -126,7 +152,7 @@ function asAction_viewEvent(eventInfo, eventType) {
   if (eventType) {
     payload.eventType = eventType;
   }
-  return { type: SET_CURRENT_EVENT, payload };
+  return { type: VIEW_EVENT, payload };
 }
 
 function asAction_setEvents(allEvents) {
@@ -137,8 +163,12 @@ function asAction_setContacts(contacts) {
   return { type: SET_CONTACTS, payload: { contacts } };
 }
 
-function asAction_addCalendar(url) {
-  return { type: ADD_CALENDAR, payload: { url } };
+function asAction_setCalendars(calendars) {
+  return { type: SET_CALENDARS, payload: { calendars } };
+}
+
+function asAction_showSettingsAddCalendar(url) {
+  return { type: SHOW_SETTINGS_ADD_CALENDAR, payload: { url } };
 }
 
 export function initializeEvents() {
@@ -157,15 +187,26 @@ export function initializeEvents() {
           dispatch(asAction_viewEvent(eventInfo));
         },
         eventInfo => dispatch(asAction_viewEvent(eventInfo, "add")),
-        url => dispatch(asAction_addCalendar(url))
+        url => dispatch(asAction_showSettingsAddCalendar(url)),
+        name => dispatch(viewPublicCalendar(name))
       );
 
-      getCalendars().then(calendars => {
+      fetchPreferences().then(preferences => {
+        dispatch(
+          asAction_showInstructions(
+            preferences && preferences.showInstructions
+              ? preferences.showInstructions.general
+              : true
+          )
+        );
+      });
+      fetchCalendars().then(calendars => {
         if (!calendars) {
           calendars = defaultCalendars;
           // :Q: why save the default instead of waiting for a change?
           publishCalendars(calendars);
         }
+        dispatch(asAction_setCalendars(calendars));
         loadCalendarData(calendars).then(allEvents => {
           dispatch(asAction_setEvents(allEvents));
         });
@@ -182,6 +223,42 @@ export function initializeEvents() {
       });
     } else {
       dispatch(asAction_disconnected());
+
+      handleIntentsInQueryString(
+        query,
+        null,
+        eventInfo => {
+          dispatch(asAction_viewEvent(eventInfo));
+        },
+        eventInfo => dispatch(asAction_viewEvent(eventInfo, "add")),
+        url => dispatch(asAction_showSettingsAddCalendar(url)),
+        name => dispatch(viewPublicCalendar(name))
+      );
+    }
+  };
+}
+
+function asAction_setPublicCalendarEvents(allEvents, calendar) {
+  return { type: SET_PUBLIC_CALENDAR_EVENTS, payload: { allEvents, calendar } };
+}
+
+function viewPublicCalendar(name) {
+  return async (dispatch, getState) => {
+    console.log("viewpubliccalendar", name);
+    if (name) {
+      const parts = name.split("@");
+      if (parts.length === 2) {
+        const calendarName = parts[0];
+        const username = parts[1];
+        loadPublicCalendar(calendarName, username).then(
+          ({ allEvents, calendar }) => {
+            dispatch(asAction_setPublicCalendarEvents(allEvents, calendar));
+          },
+          error => {
+            console.log("failed to load public calendar " + name, error);
+          }
+        );
+      }
     }
   };
 }
@@ -226,24 +303,24 @@ function loadCalendarData(calendars) {
 export function deleteEvent(event) {
   return async (dispatch, getState) => {
     let { allEvents } = getState();
-    allEvents = allEvents.filter(function(obj) {
-      return obj && obj.uid !== event.uid;
-    });
+    Object.delete(allEvents[event.uid]);
     publishEvents(event.uid, removePublicEvent);
     saveEvents("default", allEvents);
     dispatch(asAction_setEvents(allEvents));
   };
 }
 
-export function addEvent(event, details) {
+export function addEvent(event) {
   return async (dispatch, getState) => {
     let state = getState();
-    let { allEvents } = state;
+    let { allEvents } = state.events;
     event.calendarName = "default";
     event.uid = uuid();
     allEvents[event.uid] = event;
     saveEvents("default", allEvents);
-    // :Q: should there be a publishEvents(SOMETHING, addPublicEvent)
+    if (event.public) {
+      publishEvents(event, updatePublicEvent);
+    }
     window.history.pushState({}, "OI Calendar", "/");
     delete state.currentEvent;
     delete state.currentEventType;
@@ -251,10 +328,10 @@ export function addEvent(event, details) {
   };
 }
 
-export function updateEvent(event, details) {
+export function updateEvent(event) {
   return async (dispatch, getState) => {
-    let { allEvents } = getState();
-    var eventInfo = event.obj;
+    let { allEvents } = getState().events;
+    var eventInfo = event;
     eventInfo.uid = eventInfo.uid || uuid();
     allEvents[eventInfo.uid] = eventInfo;
     if (eventInfo.public) {
@@ -264,5 +341,77 @@ export function updateEvent(event, details) {
     }
     saveEvents("default", allEvents);
     dispatch(asAction_setEvents(allEvents));
+  };
+}
+
+// ################
+// Calendars
+// ################
+export function addCalendar(calendar) {
+  return async (dispatch, getState) => {
+    fetchCalendars().then(calendars => {
+      // TODO check for duplicates
+      calendars.push(calendar);
+      publishCalendars(calendars);
+      dispatch(asAction_setCalendars(calendars));
+    });
+  };
+}
+
+export function asAction_showSettings() {
+  return {
+    type: SHOW_SETTINGS
+  };
+}
+
+export function asAction_showMyPublicCalendar(name, icsUrl) {
+  return { type: SHOW_MY_PUBLIC_CALENDAR, payload: { name, icsUrl } };
+}
+
+export function showMyPublicCalendar(name) {
+  return async dispatch => {
+    fetchIcsUrl(name).then(url => {
+      console.log("icsurl", url);
+      dispatch(asAction_showMyPublicCalendar(name, url));
+    });
+  };
+}
+
+export function asAction_showAllCalendars() {
+  return { type: SHOW_ALL_CALENDARS };
+}
+
+export function showAllCalendars() {
+  return async (dispatch, getState) => {
+    window.history.pushState({}, "OI Calendar", "/");
+    dispatch(asAction_showAllCalendars());
+  };
+}
+
+export function asAction_showInstructions(show) {
+  return { type: SHOW_INSTRUCTIONS, payload: { show } };
+}
+
+export function hideInstructions() {
+  return async (dispatch, getState) => {
+    fetchPreferences().then(prefs => {
+      prefs.showInstructions = { general: false };
+      savePreferences(prefs);
+      dispatch(asAction_showInstructions(false));
+    });
+  };
+}
+
+// ################
+// Contacts
+// ################
+export function addContact(contact) {
+  return async (dispatch, getState) => {
+    fetchContactData().then(contacts => {
+      // TODO check for duplicates
+      contacts.push(contact);
+      publishContacts(contacts);
+      dispatch(asAction_setContacts(contacts));
+    });
   };
 }

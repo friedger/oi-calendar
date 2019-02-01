@@ -31,7 +31,7 @@ export function asAction_SignUserOut() {
 export function signUserOut() {
   try {
     signUserOutService();
-    asAction_SignUserOut();
+    return asAction_SignUserOut();
   } catch (e) {
     // eslint-disable-next-line no-console
     console.log(e);

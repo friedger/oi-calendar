@@ -17,8 +17,15 @@ import {
   Event as iCalEvent
 } from "ical.js";
 
+import { BlockstackNetwork } from "blockstack/lib/network";
+import { getUserAppFileUrl } from "blockstack/lib/storage";
+
 export function fetchContactData() {
-  return fetchFromBlocstack("Contacts");
+  return fetchFromBlockstack("Contacts");
+}
+
+export function publishContacts(contacts) {
+  return putOnBlockstack("Contacts", contacts);
 }
 
 export function loadGuestProfiles(guests, contacts) {
@@ -57,7 +64,7 @@ function asInviteEvent(d, username) {
 export function sendInvitesToGuests(state, eventInfo, guests) {
   const contacts = state.events.contacts;
   eventInfo = asInviteEvent(eventInfo, state.auth.user.username);
-  return putOnBlocstack(sharedUrl(eventInfo.uid), eventInfo, {
+  return putOnBlockstack(sharedUrl(eventInfo.uid), eventInfo, {
     encrypt: eventInfo.pubKey
   }).then(readUrl => {
     eventInfo.readUrl = readUrl;
@@ -82,7 +89,7 @@ export function sendInvitesToGuests(state, eventInfo, guests) {
     return addGuestPromises.then(
       ({ contacts, eventInfo }) => {
         console.log("contacts", contacts);
-        return putOnBlocstack("Contacts", contacts).then(() => {
+        return publishContacts(contacts).then(() => {
           return { contacts, eventInfo };
         });
       },
@@ -201,7 +208,7 @@ export function respondToInvite(
 // Blockstack helpers
 // ###########################################################################
 
-function fetchFromBlocstack(src, config, privateKey, errorData) {
+function fetchFromBlockstack(src, config, privateKey, errorData) {
   return getFile(src, config)
     .then(
       str => {
@@ -211,7 +218,8 @@ function fetchFromBlocstack(src, config, privateKey, errorData) {
         return str;
       },
       error => {
-        return Promise.reject("Couldn't fetch from fetchFromBlocstack", {
+        return Promise.reject({
+          msg: "Couldn't fetch from fetchFromBlockstack",
           ...errorData,
           error
         });
@@ -225,22 +233,22 @@ function fetchFromBlocstack(src, config, privateKey, errorData) {
     });
 }
 
-function putOnBlocstack(src, text, config) {
+function putOnBlockstack(src, text, config) {
   if (text && typeof text !== "string") {
     text = JSON.stringify(text);
   }
-  putFile(src, text, config);
+  return putFile(src, text, config);
 }
 
 // ###########################################################################
 // List of calendars
 // ###########################################################################
-export function getCalendars() {
-  return fetchFromBlocstack("Calendars").then(objectToArray);
+export function fetchCalendars() {
+  return fetchFromBlockstack("Calendars").then(objectToArray);
 }
 
 export function publishCalendars(calendars) {
-  putOnBlocstack("Calendars", calendars);
+  putOnBlockstack("Calendars", calendars);
 }
 
 // ###########################################################################
@@ -256,16 +264,16 @@ export function importCalendarEvents(calendar, defaultEvents) {
     fn = fetchAndParseIcal;
   } else if (type === "blockstack-user") {
     config = { decrypt: false, username: data.user };
-    fn = fetchFromBlocstack;
+    fn = fetchFromBlockstack;
   } else if (type === "private") {
-    fn = fetchFromBlocstack;
+    fn = fetchFromBlockstack;
   }
   return fn(data.src, config)
     .then(objectToArray)
     .then(events => {
       if (!events && type === "private" && name === "default") {
         // :Q: why save the default instead of waiting for a change?
-        putOnBlocstack(data.src, defaultEvents);
+        putOnBlockstack(data.src, defaultEvents);
         events = Object.values(defaultEvents);
       }
       return (events || [])
@@ -296,17 +304,27 @@ function fetchAndParseIcal(src) {
     .then(iCalParseEvents);
 }
 
-export function ViewEventInQueryString(
+export function handleIntentsInQueryString(
   query,
   username,
   whenPrivateEvent,
   whenNewEvent,
-  whenICSUrl
+  whenICSUrl,
+  whenPublicCalendar
 ) {
   if (query) {
-    const { u, e, p, intent, title, start, end, via, url } = parseQueryString(
-      query
-    );
+    const {
+      u,
+      e,
+      p,
+      intent,
+      title,
+      start,
+      end,
+      via,
+      url,
+      name
+    } = parseQueryString(query);
     if (u && e && p) {
       return loadCalendarEventFromUser(u, e, p).then(whenPrivateEvent);
     } else if (intent) {
@@ -317,15 +335,19 @@ export function ViewEventInQueryString(
         eventInfo.end = end != null ? new Date(end) : null;
         eventInfo.owner = via != null ? via : username;
         whenNewEvent(eventInfo);
-      } else if (intent.toLowerCase === "addics") {
+      } else if (intent.toLowerCase() === "addics") {
         whenICSUrl(url);
+      } else if (intent.toLowerCase() === "view") {
+        whenPublicCalendar(name);
+      } else {
+        console.log("unsupported intent " + intent);
       }
     }
   }
 }
 
 function loadCalendarEventFromUser(username, eventUid, privateKey) {
-  return fetchFromBlocstack(
+  return fetchFromBlockstack(
     sharedUrl(eventUid),
     { decrypt: false, username },
     privateKey,
@@ -363,12 +385,26 @@ export function removePublicEvent(eventUid, publicEvents) {
   }
 }
 
-function publishCalendar(text, filepath, contentType) {
-  if (!text || !text.length) {
-    console.log("empty calendar", filepath);
-    return;
-  }
-  putOnBlocstack(filepath, text, {
+export function loadPublicCalendar(calendarName, username) {
+  const path = calendarName + "/AllEvents";
+  console.log("username", username);
+  return fetchFromBlockstack(path, {
+    username,
+    decrypt: false
+  }).then(allEvents => {
+    const calendar = {
+      type: "blockstack-user",
+      mode: "read-only",
+      data: { user: username, src: path },
+      name: calendarName + "@" + username
+    };
+    allEvents = Object.values(allEvents);
+    return { allEvents, calendar };
+  });
+}
+
+function publishCalendar(events, filepath, contentType) {
+  putOnBlockstack(filepath, JSON.stringify(events), {
     encrypt: false,
     contentType
   }).then(
@@ -376,24 +412,28 @@ function publishCalendar(text, filepath, contentType) {
       console.log("public calendar at ", f);
     },
     error => {
-      console.log("error publish event", error);
+      console.log("error publish calendar", error);
     }
   );
 }
-
 export function publishEvents(param, updatePublicEvents) {
   const publicEventPath = "public/AllEvents";
-  fetchFromBlocstack(publicEventPath, { decrypt: false }).then(publicEvents => {
-    if (publicEvents) {
-      const { republish, newPublicEvents } = updatePublicEvents(
-        param,
-        publicEvents
-      );
-      if (republish) {
-        publishCalendar(newPublicEvents, publicEventPath, "text/json");
-        var ics = icsFromEvents(newPublicEvents);
-        publishCalendar(ics, publicEventPath + ".ics", "text/calendar");
-      }
+  fetchFromBlockstack(publicEventPath, {
+    decrypt: false
+  }).then(publicEvents => {
+    if (!publicEvents) {
+      publicEvents = {};
+    }
+    const { republish, publicEvents: newPublicEvents } = updatePublicEvents(
+      param,
+      publicEvents
+    );
+    if (republish) {
+      publishCalendar(newPublicEvents, publicEventPath, "text/json");
+      var ics = icsFromEvents(newPublicEvents);
+      publishCalendar(ics, publicEventPath + ".ics", "text/calendar");
+    } else {
+      console.log("nothing to publish");
     }
   });
 }
@@ -407,5 +447,21 @@ export function saveEvents(calendarName, allEvents) {
       return res;
     }, {});
 
-  putOnBlocstack(calendarName + "/AllEvents", calendarEvents);
+  putOnBlockstack(calendarName + "/AllEvents", calendarEvents);
+}
+
+export function fetchPreferences() {
+  return fetchFromBlockstack("Preferences");
+}
+
+export function fetchIcsUrl(calendarName) {
+  console.log("calendarName", calendarName);
+  const parts = calendarName.split("@");
+  const path = parts[0] + "/AllEvents.ics";
+  const username = parts[1];
+  return getUserAppFileUrl(path, username, window.location.origin);
+}
+
+export function savePreferences(preferences) {
+  putOnBlockstack("Preferences", preferences);
 }

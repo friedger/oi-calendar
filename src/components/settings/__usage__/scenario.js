@@ -1,7 +1,8 @@
 import React, { Component } from "react";
 
-import { Calendars } from "../Calendars";
-import { Contacts } from "../Contacts";
+import Calendars from "../Calendars";
+import Contacts from "../Contacts";
+import Settings from "../Settings";
 
 class Scenario extends Component {
   constructor(props) {
@@ -41,7 +42,6 @@ class Scenario extends Component {
 
   addCalendar(calendar) {
     const { calendars } = this.state;
-    console.log("calendar", calendar);
     calendars.push(calendar);
     this.setState({ calendars });
   }
@@ -52,6 +52,7 @@ class Scenario extends Component {
       <div>
         <Calendars calendars={calendars} addCalendar={this.addCalendar} />
         <Contacts contacts={contacts} lookupContacts={this.lookupContacts} />
+        <Settings show={true} />
       </div>
     );
   }

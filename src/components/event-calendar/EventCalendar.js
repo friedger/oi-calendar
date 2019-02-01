@@ -11,13 +11,14 @@ class EventCalendar extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      showInstructions: true
+      eventModal: undefined
     };
 
     this.bound = [
       "handleHideInstructions",
       "handleAddEvent",
-      "handleEditEvent"
+      "handleEditEvent",
+      "handleViewAllCalendars"
     ].reduce((acc, d) => {
       acc[d] = this[d].bind(this);
       return acc;
@@ -29,12 +30,15 @@ class EventCalendar extends Component {
   }
 
   handleHideInstructions() {
-    this.setState({ showInstructions: false });
+    this.props.hideInstructions();
+  }
+
+  handleViewAllCalendars() {
+    this.props.showAllCalendars();
   }
 
   handleEditEvent(event) {
     const { pickEventModal } = this.props;
-    console.log("handleEditEvent", event);
     pickEventModal({
       eventType: event.mode || "edit",
       eventInfo: event
@@ -43,7 +47,6 @@ class EventCalendar extends Component {
 
   handleAddEvent(slotInfo) {
     const { pickEventModal } = this.props;
-    console.log("handleAddEvent");
     slotInfo.uid = uuid();
     pickEventModal({
       eventType: "add",
@@ -76,60 +79,120 @@ class EventCalendar extends Component {
 
   render() {
     console.log("[EventCalendar.render]", this.props);
-    const { signedIn, views, eventModal } = this.props;
+    const {
+      signedIn,
+      views,
+      myPublicCalendar,
+      myPublicCalendarIcsUrl,
+      publicCalendar,
+      publicCalendarEvents,
+      showGeneralInstructions,
+      eventModal
+    } = this.props;
     const { showInstructions } = this.state;
     const { EventDetails } = views;
     const {
       handleHideInstructions,
       handleEditEvent,
-      handleAddEvent
+      handleAddEvent,
+      handleViewAllCalendars
     } = this.bound;
+
+    let events = Object.values(this.props.events.allEvents);
+    let shareUrl = null;
+    if (myPublicCalendar) {
+      events = events.filter(
+        e => e.public && e.calendarName === myPublicCalendar
+      );
+      shareUrl =
+        window.location.origin + "/?intent=view&name=" + myPublicCalendar;
+    } else if (publicCalendarEvents) {
+      events = publicCalendarEvents;
+      shareUrl =
+        window.location.origin + "/?intent=addics&url=" + publicCalendar;
+    }
+    const calendarView = (
+      <BigCalendar
+        localizer={localizer}
+        selectable={this.props.signedIn && !myPublicCalendar && !publicCalendar}
+        events={events}
+        views={allViews}
+        step={60}
+        showMultiDayTimes
+        defaultDate={new Date(moment())}
+        onSelectEvent={event => handleEditEvent(event)}
+        onSelectSlot={slotInfo => handleAddEvent(slotInfo)}
+        style={{ minHeight: "500px" }}
+        eventPropGetter={this.eventStyle}
+        startAccessor={this.getEventStart}
+        endAccessor={this.getEventEnd}
+      />
+    );
+
     return (
       <div className="bodyContainer">
         {/* :Q: would you like anything to appear on the screen after a user opted to hide the instructions?
         :A: No*/}
-        {signedIn && showInstructions && (
-          <Panel>
-            <Panel.Heading>
-              Instructions
-              <button
-                type="button"
-                className="close"
-                onClick={handleHideInstructions}
-              >
-                <span aria-hidden="true">×</span>
-                <span className="sr-only">Close</span>
-              </button>
-            </Panel.Heading>
-            <Panel.Body>
-              <Grid>
-                <Row style={{ textAlign: "left" }}>
-                  <Col md={5}>
-                    <strong>To add an event: </strong> Click on the day you want
-                    to add an event or drag up to the day you want to add the
-                    event for multiple day event! <br />
-                  </Col>
-                  <Col md={5}>
-                    <strong>To update and delete an event:</strong> Click on the
-                    event you wish to update or delete!
-                  </Col>
-                </Row>
-              </Grid>
-            </Panel.Body>
-          </Panel>
-        )}
+        {signedIn &&
+          showGeneralInstructions &&
+          !myPublicCalendar &&
+          !publicCalendar && (
+            <Panel>
+              <Panel.Heading>
+                Instructions
+                <button
+                  type="button"
+                  className="close"
+                  onClick={handleHideInstructions}
+                >
+                  <span aria-hidden="true">×</span>
+                  <span className="sr-only">Close</span>
+                </button>
+              </Panel.Heading>
+              <Panel.Body>
+                <Grid style={{ width: "100%" }}>
+                  <Row style={{ textAlign: "left" }}>
+                    <Col md={6}>
+                      <strong>To add an event: </strong> Click or long-press on
+                      the day you want to add an event or drag up to the day you
+                      want to add the event for multiple day event! <br />
+                    </Col>
+                    <Col md={6}>
+                      <strong>To update and delete an event:</strong> Click on
+                      the event you wish to update or delete!
+                    </Col>
+                  </Row>
+                  <Row style={{ textAlign: "left" }}>
+                    <Col md={2}>
+                      <img
+                        src="/images/gcalendar.png"
+                        width="48px"
+                        alt="Google Calendar"
+                      />
+                    </Col>
+                    <Col md={10}>
+                      <strong>Move from Google Calendar</strong>: Done in a few
+                      minutes! Follow the{" "}
+                      <a href="https://github.com/friedger/oi-calendar">
+                        2-steps tutorial
+                      </a>
+                      .
+                      <br />
+                      <input
+                        style={{ width: "100%" }}
+                        type="text"
+                        placeholder="https://calendar.google..../basic.ics"
+                      />
+                    </Col>
+                  </Row>
+                </Grid>
+              </Panel.Body>
+            </Panel>
+          )}
         {!signedIn && (
           <Panel>
             <Panel.Heading>
               Private, Encrypted Calendar in the Cloud
-              <button
-                type="button"
-                className="close"
-                onClick={handleHideInstructions}
-              >
-                <span aria-hidden="true">×</span>
-                <span className="sr-only">Close</span>
-              </button>
             </Panel.Heading>
             <Panel.Body>
               <strong>To learn about Blockstack: </strong> A good starting point
@@ -143,23 +206,46 @@ class EventCalendar extends Component {
             </Panel.Body>
           </Panel>
         )}
-        {console.log("[props.eventModal]", eventModal)}
         {eventModal && <EventDetails />}
-        <BigCalendar
-          localizer={localizer}
-          selectable={this.props.signedIn}
-          events={Object.values(this.props.events.allEvents)}
-          views={allViews}
-          step={60}
-          showMultiDayTimes
-          defaultDate={new Date(moment())}
-          onSelectEvent={event => handleEditEvent(event)}
-          onSelectSlot={slotInfo => handleAddEvent(slotInfo)}
-          style={{ minHeight: "500px" }}
-          eventPropGetter={this.eventStyle}
-          startAccessor={this.getEventStart}
-          endAccessor={this.getEventEnd}
-        />
+        {(myPublicCalendar || publicCalendar) && (
+          <Panel>
+            <Panel.Heading>
+              Public Calendar {myPublicCalendar}
+              {publicCalendar}
+              <button
+                type="button"
+                className="close"
+                onClick={handleViewAllCalendars}
+              >
+                <span aria-hidden="true">×</span>
+                <span className="sr-only">Close</span>
+              </button>
+            </Panel.Heading>
+            {myPublicCalendar && events.length > 0 && (
+              <Panel.Body>
+                Share this url: <a href={shareUrl}>{shareUrl}</a>
+                {myPublicCalendarIcsUrl && (
+                  <span>
+                    {" "}
+                    or <a href={myPublicCalendarIcsUrl}> as .ics file</a>
+                  </span>
+                )}
+              </Panel.Body>
+            )}
+            {myPublicCalendar && events.length == 0 && (
+              <Panel.Body>
+                No public events yet. Start publishing your events!
+              </Panel.Body>
+            )}
+            {publicCalendar && events.length > 0 && signedIn && (
+              <Panel.Body>
+                <a href={shareUrl}>Add to my calandars</a>
+              </Panel.Body>
+            )}
+            <Panel.Body>{calendarView}</Panel.Body>
+          </Panel>
+        )}
+        {!myPublicCalendar && !publicCalendar && calendarView}
       </div>
     );
   }

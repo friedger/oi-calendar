@@ -7,7 +7,15 @@ import {
   SET_CURRENT_GUESTS,
   SET_CURRENT_EVENT,
   UNSET_CURRENT_EVENT,
-  INITIALIZE_CHAT
+  INITIALIZE_CHAT,
+  SHOW_SETTINGS,
+  HIDE_SETTINGS,
+  SHOW_SETTINGS_ADD_CALENDAR,
+  SET_CALENDARS,
+  SHOW_MY_PUBLIC_CALENDAR,
+  SHOW_ALL_CALENDARS,
+  SET_PUBLIC_CALENDAR_EVENTS,
+  SHOW_INSTRUCTIONS
 } from "../ActionTypes";
 
 let initialState = {
@@ -85,6 +93,57 @@ export default function reduce(state = initialState, action = {}) {
       };
       break;
 
+    case SHOW_SETTINGS:
+      newState = { ...state, showSettings: true };
+      break;
+
+    case SHOW_SETTINGS_ADD_CALENDAR:
+      newState = {
+        ...state,
+        showSettings: true,
+        showSettingsAddCalendarUrl: action.payload.url
+      };
+      break;
+
+    case HIDE_SETTINGS:
+      newState = { ...state, showSettings: false };
+      break;
+    case SET_CALENDARS:
+      newState = { ...state, calendars: action.payload.calendars };
+      break;
+    case SHOW_MY_PUBLIC_CALENDAR:
+      newState = {
+        ...state,
+        myPublicCalendar: action.payload.name,
+        myPublicCalendarIcsUrl: action.payload.icsUrl,
+        publicCalendar: undefined,
+        publicCalendarEvents: undefined
+      };
+      break;
+    case SHOW_ALL_CALENDARS:
+      newState = {
+        ...state,
+        myPublicCalendar: undefined,
+        myPublicCalendarIcsUrl: undefined,
+        publicCalendar: undefined,
+        publicCalendarEvents: undefined
+      };
+      break;
+    case SET_PUBLIC_CALENDAR_EVENTS:
+      newState = {
+        ...state,
+        myPublicCalendar: undefined,
+        myPublicCalendarIcsUrl: undefined,
+        publicCalendarEvents: action.payload.allEvents,
+        publicCalendar: action.payload.calendar.name
+      };
+      break;
+    case SHOW_INSTRUCTIONS:
+      newState = {
+        ...state,
+        showInstructions: { general: action.payload.show }
+      };
+      break;
     default:
       newState = state;
       break;

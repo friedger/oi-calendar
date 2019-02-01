@@ -4,7 +4,6 @@ import { ProgressBar } from "react-bootstrap";
 const GUEST_BASE = "https://debutapp.social/";
 
 function renderGuestList(guests) {
-  console.log(JSON.stringify(guests));
   var list = [];
   for (var property in guests) {
     if (guests.hasOwnProperty(property)) {
@@ -38,7 +37,6 @@ export const Guest = ({ guest, username }) => {
 
 class GuestList extends Component {
   render() {
-    console.log("UI props", this.props);
     const guests = this.props.guests;
     const numberOfGuests = this.props.guestsCount || 1;
     const numberOfGuestsLoaded = this.props.guestsLoaded || 0;

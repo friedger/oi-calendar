@@ -88,7 +88,7 @@ class EventDetails extends Component {
     const { addEvent, eventDetail } = this.props;
     const { popInvitesModal, handleClose } = this.bound;
     const { guests, noInvites } = eventDetail;
-    console.log("add event", eventDetail.noInvites, checkHasGuests(guests));
+    console.log("add event", eventDetail, checkHasGuests(guests));
     if (noInvites || !checkHasGuests(guests)) {
       addEvent(eventDetail);
       handleClose();

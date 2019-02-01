@@ -32,7 +32,7 @@ export function eventAsIcs(event) {
 
 export function icsFromEvents(events) {
   try {
-    var { error, value } = createEvents(events.map(eventAsIcs));
+    var { error, value } = createEvents(Object.values(events).map(eventAsIcs));
     if (error) {
       console.log("error creating ics", error);
     } else {

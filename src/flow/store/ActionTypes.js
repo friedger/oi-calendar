@@ -13,6 +13,7 @@ export const INITIALIZE_CHAT = "chat.INITIALIZE_CHAT";
 // Events
 export const EVENTS_ENABLED = "events.EVENTS_ENABLED";
 export const SET_EVENTS = "events.SET_EVENTS";
+export const VIEW_EVENT = "events.VIEW_EVENT";
 export const SET_CURRENT_EVENT = "events.SET_CURRENT_EVENT";
 export const UNSET_CURRENT_EVENT = "events.UNSET_CURRENT_EVENT";
 
@@ -27,4 +28,14 @@ export const INVITES_SENT_OK = "contacts.INVITES_SENT";
 export const INVITES_SENT_FAIL = "contacts.INVITES_SENT_FAIL";
 
 //Calendar
+export const SET_CALENDARS = "calendar.SET_CALENDARS";
 export const ADD_CALENDAR = "calendar.ADD_CALENDAR";
+export const SET_PUBLIC_CALENDAR_EVENTS = "calendar.SET_PUBLIC_CALENDAR_EVENTS";
+
+// Settings
+export const SHOW_SETTINGS = "settings.SHOW_SETTINGS";
+export const HIDE_SETTINGS = "settings.HIDE_SETTINGS";
+export const SHOW_MY_PUBLIC_CALENDAR = "settings.SHOW_MY_PUBLIC_CALENDAR";
+export const SHOW_ALL_CALENDARS = "settings.SHOW_ALL_CALENDARS";
+export const SHOW_SETTINGS_ADD_CALENDAR = "settings.SHOW_SETTINGS_ADD_CALENDAR";
+export const SHOW_INSTRUCTIONS = "settings.SHOW_INSTRUCTIONS";
