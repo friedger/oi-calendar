@@ -3,6 +3,10 @@ import { SET_CALENDARS } from "../ActionTypes";
 import { fetchCalendars, publishCalendars } from "../../io/event";
 import { defaultCalendars } from "../../io/eventDefaults";
 
+// ################
+// When initializing app
+// ################
+
 function asAction_setCalendars(calendars) {
   return { type: SET_CALENDARS, payload: { calendars } };
 }
