@@ -52,7 +52,7 @@ export default connect(
   },
   dispatch => {
     return {
-      initializeEvents: () => {},
+      initializeLazyActions: () => {},
       showAllCalendars: () => {
         dispatch(showAllCalendars());
       },

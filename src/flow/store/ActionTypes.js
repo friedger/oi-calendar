@@ -13,7 +13,6 @@ export const INITIALIZE_CHAT = "chat.INITIALIZE_CHAT";
 // Events
 export const EVENTS_ENABLED = "events.EVENTS_ENABLED";
 export const SET_EVENTS = "events.SET_EVENTS";
-export const VIEW_EVENT = "events.VIEW_EVENT";
 export const SET_CURRENT_EVENT = "events.SET_CURRENT_EVENT";
 export const UNSET_CURRENT_EVENT = "events.UNSET_CURRENT_EVENT";
 

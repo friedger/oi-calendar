@@ -26,7 +26,7 @@ class EventCalendar extends Component {
   }
 
   componentWillMount() {
-    this.props.initializeEvents();
+    this.props.initializeLazyActions();
   }
 
   handleHideInstructions() {

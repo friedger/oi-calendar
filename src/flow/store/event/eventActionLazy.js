@@ -4,9 +4,7 @@ import {
   INVITES_SENT_FAIL,
   SET_CURRENT_GUESTS,
   USER,
-  SET_CONTACTS,
-  VIEW_EVENT,
-  SET_CALENDARS,
+  SET_CURRENT_EVENT,
   SHOW_SETTINGS_ADD_CALENDAR,
   INITIALIZE_CHAT,
   SHOW_MY_PUBLIC_CALENDAR,
@@ -23,22 +21,21 @@ import {
   publishEvents,
   handleIntentsInQueryString,
   importCalendarEvents,
-  fetchCalendars,
-  publishCalendars,
   sendInvitesToGuests,
   loadGuestProfiles,
   fetchContactData,
   updatePublicEvent,
   removePublicEvent,
-  publishContacts,
   loadPublicCalendar,
   savePreferences,
   fetchPreferences,
   fetchIcsUrl
 } from "../../io/event";
+import { initializeContactData } from "./contactActionLazy";
+import { initializeCalendars } from "./calendarActionLazy";
 
 import { createSessionChat } from "../../io/chat";
-import { defaultEvents, defaultCalendars } from "../../io/eventDefaults";
+import { defaultEvents } from "../../io/eventDefaults";
 
 import { uuid } from "../../io/eventFN";
 
@@ -150,26 +147,18 @@ function asAction_viewEvent(eventInfo, eventType) {
   if (eventType) {
     payload.eventType = eventType;
   }
-  return { type: VIEW_EVENT, payload };
+  return { type: SET_CURRENT_EVENT, payload };
 }
 
 function asAction_setEvents(allEvents) {
   return { type: SET_EVENTS, allEvents };
 }
 
-function asAction_setContacts(contacts) {
-  return { type: SET_CONTACTS, payload: { contacts } };
-}
-
-function asAction_setCalendars(calendars) {
-  return { type: SET_CALENDARS, payload: { calendars } };
-}
-
 function asAction_showSettingsAddCalendar(url) {
   return { type: SHOW_SETTINGS_ADD_CALENDAR, payload: { url } };
 }
 
-export function initializeEvents() {
+export function initializeLazyActions() {
   const query = window.location.search;
   return async (dispatch, getState) => {
     if (isUserSignedIn()) {
@@ -198,20 +187,14 @@ export function initializeEvents() {
           )
         );
       });
-      fetchCalendars().then(calendars => {
-        if (!calendars) {
-          calendars = defaultCalendars;
-          // :Q: why save the default instead of waiting for a change?
-          publishCalendars(calendars);
-        }
-        dispatch(asAction_setCalendars(calendars));
-        loadCalendarData(calendars).then(allEvents => {
-          dispatch(asAction_setEvents(allEvents));
-        });
-        fetchContactData().then(contacts => {
-          dispatch(asAction_setContacts(contacts));
-        });
-      });
+
+      dispatch(initializeCalendars())
+        .then(calendars =>
+          loadCalendarData(calendars).then(allEvents => {
+            dispatch(asAction_setEvents(allEvents));
+          })
+        )
+        .then(dispatch(initializeContactData()));
     } else if (isSignInPending()) {
       console.log("handling pending sign in");
       handlePendingSignIn().then(userData => {
@@ -333,17 +316,6 @@ export function updateEvent(event) {
 // ################
 // Calendars
 // ################
-export function addCalendar(calendar) {
-  return async (dispatch, getState) => {
-    fetchCalendars().then(calendars => {
-      // TODO check for duplicates
-      calendars.push(calendar);
-      publishCalendars(calendars);
-      dispatch(asAction_setCalendars(calendars));
-    });
-  };
-}
-
 export function asAction_showSettings() {
   return {
     type: SHOW_SETTINGS
@@ -384,20 +356,6 @@ export function hideInstructions() {
       prefs.showInstructions = { general: false };
       savePreferences(prefs);
       dispatch(asAction_showInstructions(false));
-    });
-  };
-}
-
-// ################
-// Contacts
-// ################
-export function addContact(contact) {
-  return async (dispatch, getState) => {
-    fetchContactData().then(contacts => {
-      // TODO check for duplicates
-      contacts.push(contact);
-      publishContacts(contacts);
-      dispatch(asAction_setContacts(contacts));
     });
   };
 }

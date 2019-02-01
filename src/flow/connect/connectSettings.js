@@ -1,6 +1,10 @@
 import { connect } from "react-redux";
 import { HIDE_SETTINGS } from "../store/ActionTypes";
-import { addCalendar, addContact } from "../store/event/eventActionLazy";
+import {
+  addCalendar,
+  deleteCalendars
+} from "../store/event/calendarActionLazy";
+import { addContact, deleteContacts } from "../store/event/contactActionLazy";
 
 export default connect(
   (state, redux) => {
@@ -21,9 +25,14 @@ export default connect(
       addContact: contact => {
         dispatch(addContact(contact));
       },
-      deleteContacts: () => {},
+      deleteContacts: contacts => {
+        dispatch(deleteContacts(contacts));
+      },
       addCalendar: calendar => {
         dispatch(addCalendar(calendar));
+      },
+      deleteCalendars: calendars => {
+        dispatch(deleteCalendars(calendars));
       }
     };
   }
