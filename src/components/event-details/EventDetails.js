@@ -118,22 +118,6 @@ class EventDetails extends Component {
   }
 
   popInvitesModal(eventDetail) {
-    console.log("[popInvitesModal]", eventDetail);
-    const { loadGuestList, updateCurrentEvent } = this.props;
-
-    // updateCurrentEvent(eventDetail);
-    let { guests } = eventDetail;
-    if (typeof guests !== "string") {
-      guests = "";
-    }
-    const guestList = guests.toLowerCase().split(/[,\s]+/g);
-    console.log("dispatch load guest list", guestList, eventDetail);
-    loadGuestList(guestList, ({ profiles, contacts }) => {
-      console.log("profiles", profiles);
-      // this.setState({})
-      // dispatch(setGuestList);
-      // dispatch(asAction_setGuests(profiles, eventInfo));
-    });
     this.setState({ showInvitesModal: true });
   }
 

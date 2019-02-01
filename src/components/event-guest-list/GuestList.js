@@ -62,6 +62,41 @@ class GuestList extends Component {
     }
     return <section>{guestView}</section>;
   }
+
+  componentWillReceiveProps(nextProps) {
+    /*
+    const { showInvitesModal, sending } = this.state;
+    this.setState({
+      showInvitesModal:
+        showInvitesModal &&
+        !(!!nextProps.inviteSuccess || !!nextProps.inviteError),
+      sending:
+        sending && !(!!nextProps.inviteSuccess || !!nextProps.inviteError)
+    });
+    */
+
+    console.log("GuestList.didMount");
+    // console.log("[ConnectedGuestList]", state);
+
+    /*
+    console.log("[popInvitesModal]", eventDetail);
+    const { loadGuestList, updateCurrentEvent } = this.props;
+
+    // updateCurrentEvent(eventDetail);
+    let { guests } = eventDetail;
+    if (typeof guests !== "string") {
+      guests = "";
+    }
+    const guestList = guests.toLowerCase().split(/[,\s]+/g);
+    console.log("dispatch load guest list", guestList, eventDetail);
+    loadGuestList(guestList, ({ profiles, contacts }) => {
+      console.log("profiles", profiles);
+      this.setState({ guestListLoaded: true });
+      // dispatch(setGuestList);
+      // dispatch(asAction_setGuests(profiles, eventInfo));
+    });
+    */
+  }
 }
 
 export default GuestList;
