@@ -8,12 +8,12 @@ export function asAction_SignUserIn() {
   return { type: AUTH_SIGN_IN };
 }
 
-export function signUserIn(store) {
-  return async (dispatch, getState) => {
+export function signUserIn(store, windowLocation) {
+  return (dispatch, getState) => {
     try {
       redirectToSignIn(
-        `${window.location}`,
-        `${window.location.origin}/manifest.json`,
+        `${windowLocation}`,
+        `${windowLocation.origin}/manifest.json`,
         ["store_write", "publish_data"]
       );
       asAction_SignUserIn();

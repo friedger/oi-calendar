@@ -18,7 +18,7 @@ export default connect(
         dispatch(asAction_showSettings());
       },
       viewMyPublicCalendar: name => {
-        dispatch(showMyPublicCalendar(name));
+        dispatch(showMyPublicCalendar(name, window.location.origin));
       }
     };
   }

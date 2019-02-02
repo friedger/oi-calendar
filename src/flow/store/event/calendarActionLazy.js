@@ -12,7 +12,7 @@ function asAction_setCalendars(calendars) {
 }
 
 export function initializeCalendars() {
-  return async (dispatch, getState) => {
+  return (dispatch, getState) => {
     return fetchCalendars().then(calendars => {
       if (!calendars) {
         calendars = defaultCalendars;
@@ -29,7 +29,7 @@ export function initializeCalendars() {
 // In Settings
 // ################
 export function addCalendar(calendar) {
-  return async (dispatch, getState) => {
+  return (dispatch, getState) => {
     fetchCalendars().then(calendars => {
       // TODO check for duplicates
       calendars.push(calendar);
@@ -40,7 +40,7 @@ export function addCalendar(calendar) {
 }
 
 export function deleteCalendars(deleteList) {
-  return async (dispatch, getState) => {
+  return (dispatch, getState) => {
     fetchCalendars().then(calendars => {
       const uids = deleteList.map(d => d.uid);
       const newCalendars = calendars.filter(d => {

@@ -70,6 +70,7 @@ export function sendInvitesToGuests(
   chatSession
 ) {
   const username = user.username;
+  const locationOrigin = window.location.origin;
   const eventInfo = asInviteEvent(eventInfoRaw, username);
   if (!eventInfo) {
     console.log("[ERROR]", eventInfoRaw, eventInfo);
@@ -93,7 +94,8 @@ export function sendInvitesToGuests(
                 contacts,
                 chatSession,
                 username,
-                user
+                user,
+                locationOrigin
               );
             },
             error => {
@@ -119,6 +121,7 @@ export function sendInvitesToGuests(
 }
 
 function addGuest(guest, eventInfo, contacts, chatSession, username, user) {
+  const locationOrigin = window.location.origin;
   var roomPromise;
   if (contacts[guest] && contacts[guest].roomId) {
     console.log("reusing room");
@@ -138,7 +141,6 @@ function addGuest(guest, eventInfo, contacts, chatSession, username, user) {
     roomResult => {
       var roomId = roomResult.room_id;
       Object.assign(contacts[guest], { roomId });
-
       return sendInviteMessage(
         guest,
         chatSession,
@@ -163,7 +165,8 @@ function addGuest(guest, eventInfo, contacts, chatSession, username, user) {
 }
 
 function getUserAppAccount(user) {
-  const gaiaUrl = user.apps[window.location.origin];
+  const locationOrigin = window.location.origin;
+  const gaiaUrl = user.apps[locationOrigin];
   if (gaiaUrl) {
     const urlParts = gaiaUrl.split("/");
     var appUserAddress = urlParts[urlParts.length - 2];
@@ -184,6 +187,7 @@ function sendInviteMessage(
   username,
   userAppAccount
 ) {
+  const locationOrigin = window.location.origin;
   const { title, uid, privKey } = eventInfo;
   const queryString = encodeQueryString({
     u: username,
@@ -192,9 +196,7 @@ function sendInviteMessage(
     r: roomId,
     s: userAppAccount
   });
-  const ahref = `<a href='${
-    window.location.origin
-  }${queryString}"'>${title}</a>`;
+  const ahref = `<a href='${locationOrigin}${queryString}"'>${title}</a>`;
   return userSessionChat.sendMessage(guest, roomId, {
     msgtype: "m.text",
     body: `You are invited to ${title}`,
@@ -266,7 +268,7 @@ export function fetchCalendars() {
 }
 
 export function publishCalendars(calendars) {
-  putOnBlockstack("Calendars", calendars);
+  return putOnBlockstack("Calendars", calendars);
 }
 
 // ###########################################################################
@@ -346,12 +348,12 @@ export function handleIntentsInQueryString(
     if (u && e && p) {
       return loadCalendarEventFromUser(u, e, p).then(whenPrivateEvent);
     } else if (intent) {
-      intent = intent.toLowerCase();
-      if (intent === "addevent") {
+      const intentLower = intent.toLowerCase();
+      if (intentLower === "addevent") {
         whenNewEvent(convertEvent(title, start, end, via));
-      } else if (intent === "addics") {
+      } else if (intentLower === "addics") {
         whenICSUrl(url);
-      } else if (intent === "view") {
+      } else if (intentLower === "view") {
         whenPublicCalendar(name);
       } else {
         console.log("unsupported intent " + intent);
@@ -461,7 +463,7 @@ export function saveEvents(calendarName, allEvents) {
       return res;
     }, {});
 
-  putOnBlockstack(calendarName + "/AllEvents", calendarEvents);
+  return putOnBlockstack(calendarName + "/AllEvents", calendarEvents);
 }
 
 export function fetchPreferences() {
@@ -469,11 +471,12 @@ export function fetchPreferences() {
 }
 
 export function fetchIcsUrl(calendarName) {
+  const locationOrigin = window.location.origin;
   console.log("calendarName", calendarName);
   const parts = calendarName.split("@");
   const path = parts[0] + "/AllEvents.ics";
   const username = parts[1];
-  return getUserAppFileUrl(path, username, window.location.origin);
+  return getUserAppFileUrl(path, username, locationOrigin);
 }
 
 export function savePreferences(preferences) {

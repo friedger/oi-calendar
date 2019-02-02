@@ -18,7 +18,7 @@ export default connect(
   },
   dispatch => {
     return {
-      userSignIn: () => dispatch(signUserIn()),
+      userSignIn: () => dispatch(signUserIn(window.location)),
       userSignOut: () => dispatch(signUserOut())
     };
   }

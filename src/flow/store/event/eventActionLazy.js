@@ -25,6 +25,8 @@ import {
   fetchPreferences,
   fetchIcsUrl
 } from "../../io/event";
+
+import { unsetCurrentEvent } from "./eventAction";
 import { initializeContactData } from "./contactActionLazy";
 import { initializeCalendars } from "./calendarActionLazy";
 
@@ -49,7 +51,7 @@ function asAction_initializeChat(chat) {
 }
 
 export function initializeChat() {
-  return async (dispatch, getState) => {
+  return (dispatch, getState) => {
     let chat = createSessionChat();
     dispatch(asAction_initializeChat(chat));
   };
@@ -87,6 +89,39 @@ function asAction_showSettingsAddCalendar(url) {
   return { type: SHOW_SETTINGS_ADD_CALENDAR, payload: { url } };
 }
 
+export function initializeLazyActions() {
+  const locationOrigin = window.location.origin;
+  const query = window.location.search;
+  return (dispatch, getState) => {
+    if (isUserSignedIn()) {
+      console.log("is signed in");
+      const userData = loadUserData();
+      dispatch(asAction_authenticated(userData));
+      dispatch(asAction_user(userData));
+      dispatch(initializeQueryString(query, userData.username));
+      dispatch(initializePreferences());
+      dispatch(initializeCalendars())
+        .then(calendars =>
+          loadCalendarData(calendars).then(allEvents => {
+            dispatch(asAction_setEvents(allEvents));
+          })
+        )
+        .then(dispatch(initializeContactData()));
+      dispatch(initializeChat());
+    } else if (isSignInPending()) {
+      console.log("handling pending sign in");
+      handlePendingSignIn().then(userData => {
+        console.log("redirecting to " + locationOrigin);
+        window.location = locationOrigin;
+        dispatch(asAction_authenticated(userData));
+      });
+    } else {
+      dispatch(asAction_disconnected());
+      dispatch(initializeQueryString(query));
+    }
+  };
+}
+
 function initializeQueryString(query, username) {
   function eventFromIntent(username) {
     return (title, start, end, via) => {
@@ -112,43 +147,12 @@ function initializeQueryString(query, username) {
   };
 }
 
-export function initializeLazyActions() {
-  const query = window.location.search;
-  return async (dispatch, getState) => {
-    if (isUserSignedIn()) {
-      console.log("is signed in");
-      const userData = loadUserData();
-      dispatch(asAction_authenticated(userData));
-      dispatch(asAction_user(userData));
-      dispatch(initializeQueryString(query, userData.username));
-      dispatch(initializePreferences());
-      dispatch(initializeCalendars())
-        .then(calendars =>
-          loadCalendarData(calendars).then(allEvents => {
-            dispatch(asAction_setEvents(allEvents));
-          })
-        )
-        .then(dispatch(initializeContactData()));
-    } else if (isSignInPending()) {
-      console.log("handling pending sign in");
-      handlePendingSignIn().then(userData => {
-        console.log("redirecting to " + window.location.origin);
-        window.location = window.location.origin;
-        dispatch(asAction_authenticated(userData));
-      });
-    } else {
-      dispatch(asAction_disconnected());
-      dispatch(initializeQueryString(query));
-    }
-  };
-}
-
 function asAction_setPublicCalendarEvents(allEvents, calendar) {
   return { type: SET_PUBLIC_CALENDAR_EVENTS, payload: { allEvents, calendar } };
 }
 
 function viewPublicCalendar(name) {
-  return async (dispatch, getState) => {
+  return (dispatch, getState) => {
     console.log("viewpubliccalendar", name);
     if (name) {
       const parts = name.split("@");
@@ -198,7 +202,7 @@ export function asAction_showInstructions(show) {
 }
 
 export function initializePreferences() {
-  return async (dispatch, getState) => {
+  return (dispatch, getState) => {
     fetchPreferences().then(preferences => {
       dispatch(
         asAction_showInstructions(
@@ -212,7 +216,7 @@ export function initializePreferences() {
 }
 
 export function hideInstructions() {
-  return async (dispatch, getState) => {
+  return (dispatch, getState) => {
     fetchPreferences().then(prefs => {
       prefs.showInstructions = { general: false };
       savePreferences(prefs);
@@ -237,7 +241,7 @@ export function saveAllEvents(allEvents, type = "default") {
 // ################
 
 export function deleteEvent(event) {
-  return async (dispatch, getState) => {
+  return (dispatch, getState) => {
     let { allEvents } = getState().events;
     delete allEvents[event.uid];
     publishEvents(event.uid, removePublicEvent);
@@ -247,25 +251,24 @@ export function deleteEvent(event) {
 }
 
 export function addEvent(event) {
-  return async (dispatch, getState) => {
+  return (dispatch, getState) => {
     let state = getState();
     let { allEvents } = state.events;
     event.calendarName = "default";
     event.uid = uuid();
     allEvents[event.uid] = event;
-    saveEvents("default", allEvents);
+    dispatch(saveAllEvents(allEvents));
     if (event.public) {
-      publishEvents(event, updatePublicEvent);
+      publishEvents(event, updatePublicEvent).catch(() => {});
     }
     window.history.pushState({}, "OI Calendar", "/");
-    delete state.currentEvent;
-    delete state.currentEventType;
+    dispatch(unsetCurrentEvent());
     dispatch(asAction_setEvents(allEvents));
   };
 }
 
 export function updateEvent(event) {
-  return async (dispatch, getState) => {
+  return (dispatch, getState) => {
     let { allEvents } = getState().events;
     var eventInfo = event;
     eventInfo.uid = eventInfo.uid || uuid();
@@ -294,7 +297,7 @@ export function asAction_showMyPublicCalendar(name, icsUrl) {
 }
 
 export function showMyPublicCalendar(name) {
-  return async dispatch => {
+  return dispatch => {
     fetchIcsUrl(name).then(url => {
       console.log("icsurl", url);
       dispatch(asAction_showMyPublicCalendar(name, url));
@@ -307,7 +310,7 @@ export function asAction_showAllCalendars() {
 }
 
 export function showAllCalendars() {
-  return async (dispatch, getState) => {
+  return (dispatch, getState) => {
     window.history.pushState({}, "OI Calendar", "/");
     dispatch(asAction_showAllCalendars());
   };

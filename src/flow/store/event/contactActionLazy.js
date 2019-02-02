@@ -21,7 +21,7 @@ function asAction_setContacts(contacts) {
 // ################
 
 export function initializeContactData() {
-  return async (dispatch, getState) => {
+  return (dispatch, getState) => {
     fetchContactData().then(contacts => {
       dispatch(asAction_setContacts(contacts));
     });
@@ -32,7 +32,7 @@ export function initializeContactData() {
 // In Settings
 // ################
 export function addContact(contact) {
-  return async (dispatch, getState) => {
+  return (dispatch, getState) => {
     fetchContactData().then(contacts => {
       // TODO check for duplicates
       contacts.push(contact);
@@ -43,7 +43,7 @@ export function addContact(contact) {
 }
 
 export function deleteContacts(deleteList) {
-  return async (dispatch, getState) => {
+  return (dispatch, getState) => {
     fetchContactData().then(contacts => {
       const uids = deleteList.map(d => d.uid);
 
@@ -75,14 +75,16 @@ function asAction_invitesSentFail(error) {
 }
 
 export function sendInvites(eventInfo, guests) {
-  return async (dispatch, getState) => {
+  locationOrigin = window.location.origin;
+  return (dispatch, getState) => {
     const state = getState();
     sendInvitesToGuests(
       state.events.contacts,
       state.auth.user,
       eventInfo,
       guests,
-      state.events.userSessionChat
+      state.events.userSessionChat,
+      locationOrigin
     ).then(
       ({ eventInfo, contacts }) => {
         dispatch(asAction_invitesSentOk());

@@ -11,10 +11,7 @@ import connectEventDetails from "../flow/connect/connectEventDetails";
 import connectGuestList from "../flow/connect/connectGuestList";
 import connectUserProfile from "../flow/connect/connectUserProfile";
 
-import {
-  initializeLazyActions,
-  initializeChat
-} from "../flow/store/event/eventActionLazy";
+import { initializeLazyActions } from "../flow/store/event/eventActionLazy";
 
 export function initializeLazy(store) {
   store.dispatch({
@@ -26,5 +23,4 @@ export function initializeLazy(store) {
     }
   });
   store.dispatch(initializeLazyActions());
-  store.dispatch(initializeChat());
 }

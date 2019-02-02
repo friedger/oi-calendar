@@ -190,7 +190,7 @@ class EventDetails extends Component {
     this.setState({ sending: true });
     const guestsString = eventDetail.guests;
     const guests = guestsStringToArray(guestsString);
-    sendInvites(eventDetail, guests, eventType);
+    sendInvites(eventDetail, guests, eventType, window.location.origin);
   }
 
   render() {

@@ -14,6 +14,7 @@ export class UserSessionChat {
   }
 
   getOTP(userData) {
+    const locationOrigin = window.location.origin;
     const appUserAddress = publicKeyToAddress(
       getPublicKeyFromPrivate(userData.appPrivateKey)
     );
@@ -33,8 +34,7 @@ export class UserSessionChat {
           () => {
             return {
               username: appUserAddress.toLowerCase(),
-              password:
-                txid + "|" + window.location.origin + "|" + userData.username
+              password: txid + "|" + locationOrigin + "|" + userData.username
             };
           },
           error => console.log("err2", error)
@@ -125,6 +125,7 @@ export class UserSessionChat {
    **/
 
   login() {
+    const locationOrigin = window.location.origin;
     if (this.matrixClient.getUserId()) {
       return Promise.resolve();
     } else {
@@ -156,6 +157,8 @@ export class UserSessionChat {
   }
 
   lookupProfile(username) {
+    const locationOrigin = window.location.origin;
+
     if (!username) {
       return Promise.reject();
     }
@@ -173,8 +176,8 @@ export class UserSessionChat {
           responseJSON.address
         ).then(pr => {
           console.log("pr", pr);
-          if (pr.apps[window.location.origin]) {
-            const gaiaUrl = pr.apps[window.location.origin];
+          if (pr.apps[locationOrigin]) {
+            const gaiaUrl = pr.apps[locationOrigin];
             const urlParts = gaiaUrl.split("/");
             profile.appUserAddress = urlParts[urlParts.length - 2];
           }
