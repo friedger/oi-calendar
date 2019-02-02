@@ -5,6 +5,10 @@ import { uuid } from "../src/flow/io/eventFN";
 import { putFile } from "blockstack";
 import { JSDOM } from "jsdom";
 
+// :NOTE: Blockstack is causing issues due to some localstorage warning.
+// Here are different known approaches to deal with that problem.
+// None of them seem to work.
+
 new JSDOM("<!DOCTYPE html><html><body></body></html>", {
   url: "http://localhost:3000/"
 });
