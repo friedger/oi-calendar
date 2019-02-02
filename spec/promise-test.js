@@ -17,6 +17,7 @@ const localStorageMock = {
 global.localStorage = localStorageMock;
 
 function asAction_setEvents(allEvents) {
+  console.log("SET_EVENTS", allEvents);
   return { type: SET_EVENTS, allEvents };
 }
 
@@ -24,7 +25,7 @@ function putOnBlockstack(src, text, config) {
   if (text && typeof text !== "string") {
     text = JSON.stringify(text);
   }
-  return putFile(src, text, config);
+  // return putFile(src, text, config);
 }
 
 export function saveEvents(calendarName, allEvents) {
