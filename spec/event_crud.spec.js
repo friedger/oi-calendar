@@ -6,9 +6,11 @@ import { SET_EVENTS } from "../src/flow/store/ActionTypes";
 
 const store = storeManager.createInitialStore({});
 
-// :NOTE: in this file, you should test function in io/event.js.
-// testing the redux store requires a slightly different strategy where
+// :NOTE:  testing the redux store requires a slightly different strategy where
 // you need to store.subscribe and then check the state of the store.
+
+// :NOTE: it is best to have two different sets of tests. One to test the services.
+// One to test the information flux as managed by redux
 
 // Node.js is much stricter on Promises than the browser.
 // So you might get tests to fail due to Promises not having an explicit reject
