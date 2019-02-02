@@ -9,7 +9,7 @@ import { JSDOM } from "jsdom";
 // Here are different known approaches to deal with that problem.
 // None of them seem to work.
 
-new JSDOM("<!DOCTYPE html><html><body></body></html>", {
+const dom = new JSDOM("<!DOCTYPE html><html><body></body></html>", {
   url: "http://localhost:3000/"
 });
 
@@ -21,19 +21,18 @@ const localStorageMock = {
 global.localStorage = localStorageMock;
 
 function asAction_setEvents(allEvents) {
-  console.log("SET_EVENTS", allEvents);
-  return { type: SET_EVENTS, allEvents };
+  return { type: SET_EVENTS, allEvents: allEvents };
 }
 
 function putOnBlockstack(src, text, config) {
   if (text && typeof text !== "string") {
     text = JSON.stringify(text);
   }
+  // :WARN:  SecurityError: localStorage is not available for opaque origins
   // return putFile(src, text, config);
 }
 
 export function saveEvents(calendarName, allEvents) {
-  console.log("save", { calendarName, allEvents });
   const calendarEvents = Object.keys(allEvents)
     .filter(key => allEvents[key].calendarName === calendarName)
     .reduce((res, key) => {

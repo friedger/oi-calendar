@@ -22,15 +22,25 @@ describe("CRUD Events", () => {
       store.subscribe(() => {
         const state = store.getState();
         const allEvents = state.events.allEvents;
+        const count = Object.values(allEvents).length;
+        const fst = Object.values(allEvents)[0];
+        assert.equal(count, 1, "Should be the number of events added");
         assert.equal(
-          allEvents.length,
-          2,
-          "Should contain default event and new event"
+          fst.title,
+          "ABC",
+          "Should be the title of the first event added"
         );
         done();
       });
-      store.dispatch({ type: SET_EVENTS, allEvents: [1, 2] });
-      // store.dispatch(addEvent({ title: "ABC" })).catch(() => {});
+      // store.dispatch({ type: SET_EVENTS, allEvents: [1, 2] });
+      store.dispatch(addEvent({ title: "ABC" })).catch(() => {});
+    });
+  });
+
+  describe("add public event", () => {
+    it("should publish the event", () => {
+      // :NOTE: this would be the case only after initializeLazyActions has been called
+      // assert.equal(count, 2, "Should contain default event and new event");
     });
   });
   describe("add public event", () => {
