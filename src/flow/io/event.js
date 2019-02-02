@@ -324,7 +324,7 @@ function fetchAndParseIcal(src) {
 
 export function handleIntentsInQueryString(
   query,
-  username,
+  convertEvent,
   whenPrivateEvent,
   whenNewEvent,
   whenICSUrl,
@@ -346,16 +346,12 @@ export function handleIntentsInQueryString(
     if (u && e && p) {
       return loadCalendarEventFromUser(u, e, p).then(whenPrivateEvent);
     } else if (intent) {
-      if (intent.toLowerCase() === "addevent") {
-        const eventInfo = {};
-        eventInfo.title = title || "New Event";
-        eventInfo.start = start != null ? new Date(start) : new Date();
-        eventInfo.end = end != null ? new Date(end) : null;
-        eventInfo.owner = via != null ? via : username;
-        whenNewEvent(eventInfo);
-      } else if (intent.toLowerCase() === "addics") {
+      intent = intent.toLowerCase();
+      if (intent === "addevent") {
+        whenNewEvent(convertEvent(title, start, end, via));
+      } else if (intent === "addics") {
         whenICSUrl(url);
-      } else if (intent.toLowerCase() === "view") {
+      } else if (intent === "view") {
         whenPublicCalendar(name);
       } else {
         console.log("unsupported intent " + intent);

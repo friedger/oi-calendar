@@ -87,6 +87,31 @@ function asAction_showSettingsAddCalendar(url) {
   return { type: SHOW_SETTINGS_ADD_CALENDAR, payload: { url } };
 }
 
+function initializeQueryString(query, username) {
+  function eventFromIntent(username) {
+    return (title, start, end, via) => {
+      const eventInfo = {};
+      eventInfo.title = title || "New Event";
+      eventInfo.start = start != null ? new Date(start) : new Date();
+      eventInfo.end = end != null ? new Date(end) : null;
+      eventInfo.owner = via != null ? via : username;
+      return eventInfo;
+    };
+  }
+  return (dispatch, getState) => {
+    handleIntentsInQueryString(
+      query,
+      eventFromIntent(username),
+      eventInfo => {
+        dispatch(asAction_viewEvent(eventInfo));
+      },
+      eventInfo => dispatch(asAction_viewEvent(eventInfo, "add")),
+      url => dispatch(asAction_showSettingsAddCalendar(url)),
+      name => dispatch(viewPublicCalendar(name))
+    );
+  };
+}
+
 export function initializeLazyActions() {
   const query = window.location.search;
   return async (dispatch, getState) => {
@@ -95,28 +120,8 @@ export function initializeLazyActions() {
       const userData = loadUserData();
       dispatch(asAction_authenticated(userData));
       dispatch(asAction_user(userData));
-
-      handleIntentsInQueryString(
-        query,
-        userData.username,
-        eventInfo => {
-          dispatch(asAction_viewEvent(eventInfo));
-        },
-        eventInfo => dispatch(asAction_viewEvent(eventInfo, "add")),
-        url => dispatch(asAction_showSettingsAddCalendar(url)),
-        name => dispatch(viewPublicCalendar(name))
-      );
-
-      fetchPreferences().then(preferences => {
-        dispatch(
-          asAction_showInstructions(
-            preferences && preferences.showInstructions
-              ? preferences.showInstructions.general
-              : true
-          )
-        );
-      });
-
+      dispatch(initializeQueryString(query, userData.username));
+      dispatch(initializePreferences());
       dispatch(initializeCalendars())
         .then(calendars =>
           loadCalendarData(calendars).then(allEvents => {
@@ -133,17 +138,7 @@ export function initializeLazyActions() {
       });
     } else {
       dispatch(asAction_disconnected());
-
-      handleIntentsInQueryString(
-        query,
-        null,
-        eventInfo => {
-          dispatch(asAction_viewEvent(eventInfo));
-        },
-        eventInfo => dispatch(asAction_viewEvent(eventInfo, "add")),
-        url => dispatch(asAction_showSettingsAddCalendar(url)),
-        name => dispatch(viewPublicCalendar(name))
-      );
+      dispatch(initializeQueryString(query));
     }
   };
 }
@@ -192,6 +187,38 @@ function loadCalendarData(calendars) {
       return { ...acc, ...events };
     }, {});
   });
+}
+
+// ################
+// Preferences
+// ################
+
+export function asAction_showInstructions(show) {
+  return { type: SHOW_INSTRUCTIONS, payload: { show } };
+}
+
+export function initializePreferences() {
+  return async (dispatch, getState) => {
+    fetchPreferences().then(preferences => {
+      dispatch(
+        asAction_showInstructions(
+          preferences && preferences.showInstructions
+            ? preferences.showInstructions.general
+            : true
+        )
+      );
+    });
+  };
+}
+
+export function hideInstructions() {
+  return async (dispatch, getState) => {
+    fetchPreferences().then(prefs => {
+      prefs.showInstructions = { general: false };
+      savePreferences(prefs);
+      dispatch(asAction_showInstructions(false));
+    });
+  };
 }
 
 // ################
@@ -283,19 +310,5 @@ export function showAllCalendars() {
   return async (dispatch, getState) => {
     window.history.pushState({}, "OI Calendar", "/");
     dispatch(asAction_showAllCalendars());
-  };
-}
-
-export function asAction_showInstructions(show) {
-  return { type: SHOW_INSTRUCTIONS, payload: { show } };
-}
-
-export function hideInstructions() {
-  return async (dispatch, getState) => {
-    fetchPreferences().then(prefs => {
-      prefs.showInstructions = { general: false };
-      savePreferences(prefs);
-      dispatch(asAction_showInstructions(false));
-    });
   };
 }
