@@ -109,7 +109,8 @@ export function initializeEvents() {
     dispatch(initializeCalendars())
       .then(calendars => {
         dispatch(setLoadingCalendars(0, calendars.length))
-        const allEventsPromise = loadCalendarEvents(calendars, dispatch)
+        const user = getState().auth.user
+        const allEventsPromise = loadCalendarEvents(calendars, user, dispatch)
         return allEventsPromise
       })
       .then(allEvents => {
@@ -232,7 +233,7 @@ function setLoadingCalendars(index, length) {
   return { type: SET_LOADING_CALENDARS, payload: { index, length } }
 }
 
-function loadCalendarEvents(calendars, dispatch) {
+function loadCalendarEvents(calendars, user, dispatch) {
   const calendarCount = calendars.length
   const allCalendars = []
   var promises = calendars.map(function(calendar, index) {
@@ -240,7 +241,7 @@ function loadCalendarEvents(calendars, dispatch) {
       dispatch(setLoadingCalendars(index, calendarCount))
       return {}
     } else {
-      return importCalendarEvents(calendar, defaultEvents).then(
+      return importCalendarEvents(calendar, user, defaultEvents).then(
         events => {
           const calendarEvents = { name: calendar.name, events }
           allCalendars.push(calendarEvents)
