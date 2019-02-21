@@ -46,7 +46,7 @@ import {
   initializeCalendars,
   showSettingsAddCalendar,
 } from './calendarActionLazy'
-import { guestsStringToArray } from '../../../components/event-details/EventDetails'
+import { guestsStringToArray } from '../../../components/event-details/EventDetailsBody'
 import { setCurrentEvent, setCurrentEventUid } from './eventAction'
 
 // Reminders
