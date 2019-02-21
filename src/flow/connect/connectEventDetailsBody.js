@@ -4,16 +4,11 @@ import moment from 'moment'
 import { setCurrentEvent, unsetCurrentEvent } from '../store/event/eventAction'
 
 import {
-  addEvent,
-  deleteEvent,
-  updateEvent,
-  saveAllEvents,
   createConferencingRoom,
   removeConferencingRoom,
 } from '../../flow/store/event/eventActionLazy'
 
 import {
-  sendInvites,
   unsetCurrentInvites,
   loadGuestList,
 } from '../../flow/store/event/contactActionLazy'
@@ -29,7 +24,7 @@ const eventDefaults = {
 
 export default connect(
   (state, redux) => {
-    console.log('[ConnectedEventDetails]', state)
+    console.log('[ConnectedEventDetailsBody]', state)
     const { GuestList } = state.lazy
     const { currentEvent, currentEventType } = state.events
     const inviteError = state.events.inviteError
@@ -63,22 +58,9 @@ export default connect(
       updateCurrentEvent: eventDetail => {
         dispatch(setCurrentEvent(eventDetail))
       },
-      sendInvites: (eventInfo, guests, actionType) =>
-        dispatch(sendInvites(eventInfo, guests)).then(() => {
-          let { allEvents } = redux.store.getState().events
-          if (actionType === 'add' || actionType === 'edit') {
-            allEvents[eventInfo.uid] = eventInfo
-          }
-          dispatch(saveAllEvents(allEvents))
-        }),
       unsetInviteError: () => {
         dispatch(unsetCurrentInvites())
       },
-      deleteEvent: obj => dispatch(deleteEvent(obj)),
-      addEvent: obj => {
-        dispatch(addEvent(obj))
-      },
-      updateEvent: obj => dispatch(updateEvent(obj)),
       createConferencingRoom: (eventDetail, guests) =>
         dispatch(createConferencingRoom(eventDetail, guests)),
       removeConferencingRoom: obj => dispatch(removeConferencingRoom(obj)),

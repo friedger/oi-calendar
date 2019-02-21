@@ -25,7 +25,6 @@ export default class EventDetailsBody extends Component {
     const { eventDetail } = props
 
     this.state = {
-      sending: false,
       endDateOrDuration:
         eventDetail && eventDetail.duration ? 'duration' : 'endDate',
       addingConferencing: false,
