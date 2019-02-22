@@ -37,7 +37,7 @@ export default connect(
 
     const showGeneralInstructions = showInstructions
       ? showInstructions.general
-      : true
+      : false
 
     let showError = currentError && currentError.msg
     let error = currentError ? currentError.msg : null
