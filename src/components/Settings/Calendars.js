@@ -293,6 +293,11 @@ export default class Calendars extends AddDeleteSetting {
     }
   }
 
+  onCreateTeamCalendar(e) {
+    console.log('create team calendar')
+    this.props.createTeamCalendar('new team')
+  }
+
   render() {
     const {
       items: itemList,
@@ -319,6 +324,16 @@ export default class Calendars extends AddDeleteSetting {
         <Card style={{}}>
           <Card.Header>{addTitle}</Card.Header>
           <Card.Body>
+            <Row>
+              <Col xs={12}>
+                <input
+                  value={'create team calendar'}
+                  type="submit"
+                  onClick={e => this.onCreateTeamCalendar(e)}
+                  style={{ width: '80%' }}
+                />
+              </Col>
+            </Row>
             <Row>
               <Col md={6} sm={12}>
                 <Row style={{ padding: '5px' }}>

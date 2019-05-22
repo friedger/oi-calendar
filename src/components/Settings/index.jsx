@@ -58,6 +58,7 @@ export default class Settings extends Component {
 			enableRichNotif,
 			disableRichNotif,
 			saveRichNotifExcludeGuests,
+			createTeamCalendar,
 		} = this.props
 		const CalendarsContent = (
 			<div>
@@ -67,6 +68,7 @@ export default class Settings extends Component {
 					deleteItems={deleteCalendars}
 					setItemData={setCalendarData}
 					valueOfAdd={addCalendarUrl}
+					createTeamCalendar={createTeamCalendar}
 					user={user}
 					verifyNewCalendar={verifyNewCalendar}
 					verifiedNewCalendarData={verifiedNewCalendarData}

@@ -6,6 +6,7 @@ import {
 } from '../ActionTypes'
 import { defaultCalendars } from '../../core/eventDefaults'
 import { guaranteeHexColor } from '../../core/eventFN'
+import { createSharedCalendar } from '../../core/event'
 
 // ################
 // When initializing app
@@ -97,5 +98,11 @@ export function setCalendarData(calendar, newData) {
       console.log(newCalendars)
       dispatch(resetCalendars(newCalendars))
     })
+  }
+}
+
+export function createTeamCalendar(name) {
+  return async () => {
+    createSharedCalendar(name)
   }
 }

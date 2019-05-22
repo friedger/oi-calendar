@@ -4,6 +4,8 @@ import {
   lookupProfile,
   makeECPrivateKey,
   getPublicKeyFromPrivate,
+  connectToGaiaHub,
+  uploadToGaiaHub,
 } from 'blockstack'
 import { iCalParseEvents, icsFromEvents } from './ical'
 import { parseQueryString, encodeQueryString } from '../utils'
@@ -220,6 +222,37 @@ export function respondToInvite(
     msgtype: 'm.text',
     body: text,
   })
+}
+
+export function createSharedCalendar(name) {
+  console.log('creating ', name)
+  const privKey = makeECPrivateKey()
+  const pubKey = getPublicKeyFromPrivate(privKey)
+  try {
+    connectToGaiaHub('https://hub.blockstack.org', privKey).then(
+      config => {
+        console.log(config)
+        uploadToGaiaHub(
+          'calendar.json',
+          JSON.stringify({ name }),
+          config,
+          'application/json'
+        ).then(
+          url => {
+            console.log(url, privKey, pubKey, config)
+          },
+          error => {
+            console.log(error)
+          }
+        )
+      },
+      error => {
+        console.log(error)
+      }
+    )
+  } catch (e) {
+    console.log(e)
+  }
 }
 
 // ###########################################################################

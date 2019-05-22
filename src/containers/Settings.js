@@ -14,6 +14,7 @@ import {
   deleteCalendars,
   setCalendarData,
   showSettings,
+  createTeamCalendar,
 } from '../store/event/calendarActionLazy'
 import {
   addContact,
@@ -113,6 +114,9 @@ export default connect(
       },
       saveRichNotifExcludeGuests: guests => {
         dispatch(saveRichNotifExcludeGuests(guests))
+      },
+      createTeamCalendar: name => {
+        dispatch(createTeamCalendar(name))
       },
     }
   }
