@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
 import { PropTypes } from 'prop-types'
-import moment from 'moment'
 import {
 	Card,
 	Container,
@@ -10,8 +9,13 @@ import {
 	Button,
 	Alert,
 } from 'react-bootstrap'
-import BigCalendar from 'react-big-calendar'
-import 'react-big-calendar/lib/css/react-big-calendar.css'
+import FullCalendar from '@fullcalendar/react'
+import dayGridPlugin from '@fullcalendar/daygrid'
+import momentPlugin from '@fullcalendar/moment'
+import listPlugin from '@fullcalendar/list'
+import timeGridPlugin from '@fullcalendar/timegrid'
+import interactionPlugin from '@fullcalendar/interaction'
+
 import queryString from 'query-string'
 // Containers
 import EventDetailsContainer from '../../containers/EventDetails'
@@ -21,10 +25,11 @@ import FAQs from '../FAQ'
 
 import { uuid } from '../../core/eventFN'
 
-let localizer = BigCalendar.momentLocalizer(moment)
-let allViews = Object.keys(BigCalendar.Views).map(k => BigCalendar.Views[k])
+import './Calendar.scss'
 
 class Calendar extends Component {
+	calendarComponentRef = React.createRef()
+
 	constructor(props) {
 		super(props)
 		this.bound = [
@@ -63,17 +68,18 @@ class Calendar extends Component {
 		this.props.hideInstructions()
 	}
 
-	handleEditEvent(event) {
+	handleEditEvent(info) {
 		const { pickEventModal } = this.props
 		var eventType
-		if (event.mode === 'read-only') {
+		if (info.event.mode === 'read-only') {
 			eventType = 'view'
 		} else {
 			eventType = 'edit'
 		}
+		console.log({ info })
 		pickEventModal({
 			eventType,
-			eventInfo: event,
+			eventInfo: info.event,
 		})
 	}
 
@@ -154,20 +160,25 @@ class Calendar extends Component {
 						/>
 					)}
 				</div>
-				<BigCalendar
-					localizer={localizer}
-					selectable={this.props.signedIn}
+				<FullCalendar
+					defaultView="dayGridMonth"
+					plugins={[
+						dayGridPlugin,
+						timeGridPlugin,
+						momentPlugin,
+						listPlugin,
+						interactionPlugin,
+					]}
+					ref={this.calendarComponentRef}
 					events={events}
-					views={allViews}
-					step={60}
-					showMultiDayTimes
-					defaultDate={new Date(moment())}
-					onSelectEvent={event => handleEditEvent(event)}
-					onSelectSlot={slotInfo => handleAddEvent(slotInfo)}
-					style={{ minHeight: '500px' }}
-					eventPropGetter={this.eventStyle}
-					startAccessor={this.getEventStart}
-					endAccessor={this.getEventEnd}
+					header={{
+						left: 'prev,next today',
+						center: 'title',
+						right: 'dayGridMonth,timeGridWeek,timeGridDay,listMonth',
+					}}
+					weekNumbers
+					dateClick={handleAddEvent}
+					eventClick={handleEditEvent}
 				/>
 				{showError && (
 					<div
