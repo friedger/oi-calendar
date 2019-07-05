@@ -2,6 +2,17 @@
 # yarn lockfile v1
 
 
+"@arkane-network/arkane-connect@^1.1.16":
+  version "1.1.16"
+  resolved "https://registry.yarnpkg.com/@arkane-network/arkane-connect/-/arkane-connect-1.1.16.tgz#b64cf619ad78494b176d982805f61d8f5b41492f"
+  integrity sha512-xv6cXSeZBNicZ7X46fBME2wJmXzfjWdjyql4fi5jezhgQXy1OEGM7Dj2aTt+cQRPv/LQaLuZ5cop09NmfyardA==
+  dependencies:
+    axios "^0.18.0"
+    core-js "^2.6.5"
+    es6-promise "^4.2.5"
+    keycloak-js "4.3.0"
+    querystring "^0.2.0"
+
 "@babel/cli@7.2.3":
   version "7.2.3"
   resolved "https://registry.yarnpkg.com/@babel/cli/-/cli-7.2.3.tgz#1b262e42a3e959d28ab3d205ba2718e1923cfee6"
@@ -1714,6 +1725,14 @@ aws4@^1.8.0:
   version "1.8.0"
   resolved "https://registry.yarnpkg.com/aws4/-/aws4-1.8.0.tgz#f0e003d9ca9e7f59c7a508945d7b2ef9a04a542f"
 
+axios@^0.18.0:
+  version "0.18.1"
+  resolved "https://registry.yarnpkg.com/axios/-/axios-0.18.1.tgz#ff3f0de2e7b5d180e757ad98000f1081b87bcea3"
+  integrity sha512-0BfJq4NSfQXd+SkFdrvFbG7addhYSBA2mQwISr46pD6E5iqkWg02RAs8vyTT/j0RTnoYmeXauBuSv1qKwR179g==
+  dependencies:
+    follow-redirects "1.5.10"
+    is-buffer "^2.0.2"
+
 axobject-query@^2.0.1:
   version "2.0.2"
   resolved "https://registry.yarnpkg.com/axobject-query/-/axobject-query-2.0.2.tgz#ea187abe5b9002b377f925d8bf7d1c561adf38f9"
@@ -3358,6 +3377,11 @@ core-js@^2.4.0, core-js@^2.5.0, core-js@^2.5.7:
   version "2.6.3"
   resolved "https://registry.yarnpkg.com/core-js/-/core-js-2.6.3.tgz#4b70938bdffdaf64931e66e2db158f0892289c49"
 
+core-js@^2.6.5:
+  version "2.6.9"
+  resolved "https://registry.yarnpkg.com/core-js/-/core-js-2.6.9.tgz#6b4b214620c834152e179323727fc19741b084f2"
+  integrity sha512-HOpZf6eXmnl7la+cUdMnLvUxKNqLUzJvgIziQ0DiF3JwSImNphIqdGqzj6hIKyX04MmV0poclQ7+wjWvxQyR2A==
+
 core-util-is@1.0.2, core-util-is@~1.0.0:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/core-util-is/-/core-util-is-1.0.2.tgz#b5fd54220aa2bc5ab57aab7140c940754503c1a7"
@@ -4201,7 +4225,7 @@ es-to-primitive@^1.2.0:
     is-date-object "^1.0.1"
     is-symbol "^1.0.2"
 
-es6-promise@^4.0.3:
+es6-promise@^4.0.3, es6-promise@^4.2.5:
   version "4.2.6"
   resolved "https://registry.yarnpkg.com/es6-promise/-/es6-promise-4.2.6.tgz#b685edd8258886365ea62b57d30de28fadcd974f"
   integrity sha512-aRVgGdnmW2OiySVPUC9e6m+plolMAJKjZnQlCwNSuK5yQ0JN61DZSO1X1Ufd1foqWRAlig0rhduTCHe7sVtK5Q==
@@ -4930,6 +4954,13 @@ fn-name@~2.0.1:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/fn-name/-/fn-name-2.0.1.tgz#5214d7537a4d06a4a301c0cc262feb84188002e7"
   integrity sha1-UhTXU3pNBqSjAcDMJi/rhBiAAuc=
+
+follow-redirects@1.5.10:
+  version "1.5.10"
+  resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.5.10.tgz#7b7a9f9aea2fdff36786a94ff643ed07f4ff5e2a"
+  integrity sha512-0V5l4Cizzvqt5D44aTXbFZz+FtyXV1vrDN6qrelxtfYQKW0KO0W2T/hkE8xvGa/540LkZlkaUjO4ailYTFtHVQ==
+  dependencies:
+    debug "=3.1.0"
 
 follow-redirects@^1.0.0:
   version "1.6.1"
@@ -5990,7 +6021,7 @@ is-buffer@^1.0.2, is-buffer@^1.1.5:
   version "1.1.6"
   resolved "https://registry.yarnpkg.com/is-buffer/-/is-buffer-1.1.6.tgz#efaa2ea9daa0d7ab2ea13a97b2b8ad51fefbe8be"
 
-is-buffer@^2.0.0, is-buffer@~2.0.3:
+is-buffer@^2.0.0, is-buffer@^2.0.2, is-buffer@~2.0.3:
   version "2.0.3"
   resolved "https://registry.yarnpkg.com/is-buffer/-/is-buffer-2.0.3.tgz#4ecf3fcf749cbd1e472689e109ac66261a25e725"
   integrity sha512-U15Q7MXTuZlrbymiz95PJpZxu8IlipAp4dtS3wOdgPXx3mqBnslrWU14kxfHB+Py/+2PVKSr37dMAgM2A4uArw==
@@ -6870,6 +6901,11 @@ key-encoder@^1.1.7:
     asn1.js "^5.0.1"
     bn.js "^4.11.8"
     elliptic "^6.4.1"
+
+keycloak-js@4.3.0:
+  version "4.3.0"
+  resolved "https://registry.yarnpkg.com/keycloak-js/-/keycloak-js-4.3.0.tgz#69f1b63105061898529b968740a763c37408aac6"
+  integrity sha512-iRuL8LKnjoYGmcWfCLUP+C6+FHYI/fHnHHzwpT0mbd+EI5o21Lo/Oq5QJqDM9OJPAKT/BsOtInU19oD9gZ3m6w==
 
 keycode@^2.1.2:
   version "2.2.0"
@@ -9692,7 +9728,7 @@ querystring-es3@^0.2.0:
   version "0.2.1"
   resolved "https://registry.yarnpkg.com/querystring-es3/-/querystring-es3-0.2.1.tgz#9ec61f79049875707d69414596fd907a4d711e73"
 
-querystring@0.2.0:
+querystring@0.2.0, querystring@^0.2.0:
   version "0.2.0"
   resolved "https://registry.yarnpkg.com/querystring/-/querystring-0.2.0.tgz#b209849203bb25df820da756e747005878521620"
 

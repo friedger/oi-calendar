@@ -5,6 +5,7 @@
     "version": "0.8.4",
     "private": true,
     "dependencies": {
+        "@arkane-network/arkane-connect": "^1.1.16",
         "@fortawesome/fontawesome-svg-core": "^1.2.15",
         "@fortawesome/free-solid-svg-icons": "^5.7.2",
         "@fortawesome/react-fontawesome": "^0.1.4",
