@@ -50,6 +50,7 @@ import {
 // Reminders
 import { addReminder, initReminders } from '../../reminder'
 import { AppConfig } from 'blockstack/lib/auth'
+import { Contact } from 'blockstack-collections'
 import { push } from 'connected-react-router'
 
 // #########################
@@ -164,7 +165,7 @@ export function initializeLazyActions() {
     console.log('init')
     const userSession = new UserSession(
       new AppConfig(
-        ['store_write', 'publish_data'],
+        ['store_write', 'publish_data', Contact.scope],
         `${window.location.origin}`,
         `${window.location}`,
         `${window.location.origin}/manifest.json`

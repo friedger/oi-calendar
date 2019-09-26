@@ -27,10 +27,10 @@ export default connect(
   (state, redux) => {
     const show = state.events.showPage === 'settings'
     const addCalendarUrl = state.events.showSettingsAddCalendarUrl
-    var contacts = state.events.contacts
     const user = state.auth.user
     const {
       calendars,
+      contacts,
       verifiedNewCalendarData,
       richNotifEnabled,
       richNofifExclude,

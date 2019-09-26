@@ -10,6 +10,7 @@ import { parseQueryString, encodeQueryString } from '../utils'
 
 import { getUserAppFileUrl } from 'blockstack/lib/storage'
 import { defaultCalendars } from './eventDefaults'
+import { Contact } from 'blockstack-collections'
 
 // ################
 // Contacts
@@ -384,8 +385,22 @@ export class UserOwnedStorage {
   }
 
   fetchContactData() {
-    return fetchFromBlockstack(this.userSession, 'Contacts').then(contacts => {
-      return contacts || {}
+    const contactPromises = []
+    const list = Contact.list(contactID => {
+      contactPromises.push(Contact.get(contactID))
+      return true
+    })
+    return list.then(() => {
+      return Promise.all(contactPromises).then(contacts => {
+        const c = contacts.reduce((acc, cur) => {
+          acc[cur.blockstackID] = {
+            name: cur.firstName,
+            username: cur.blockstackID,
+          }
+          return acc
+        }, {})
+        return c
+      })
     })
   }
 

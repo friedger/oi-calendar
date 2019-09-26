@@ -43,7 +43,6 @@ let initialState = {
 }
 
 export default function reduce(state = initialState, action = {}) {
-  console.log('EventReducer', action)
   const { type, payload } = action
   let newState = state
   switch (type) {
