@@ -249,6 +249,7 @@ class EventDetails extends Component {
 			editMode,
 			addingConferencing,
 			removingConferencing,
+			allNotifEnabled,
 			richNotifEnabled,
 			richNofifExclude,
 		} = this.props
@@ -386,38 +387,40 @@ class EventDetails extends Component {
 								/>
 							</Col>
 						</Row>
-						<Row>
-							<Col xs={12}>
-								<label> {getLabelForReminder()} </label>
-								<input
-									type="checkBox"
-									name="reminderEnabled"
-									value={eventDetails.reminderEnabled}
-									checked={eventDetails.reminderEnabled}
-									onChange={e => handleDataChange(e, 'reminderEnabled')}
-									style={{ marginRight: '5px', marginLeft: '5px' }}
-								/>
-								<label> Enabled </label>
-								<div className="reminder-group">
+						{allNotifEnabled && (
+							<Row>
+								<Col xs={12}>
+									<label> {getLabelForReminder()} </label>
 									<input
-										type="number"
-										className="form-control"
-										placeholder="10"
-										ref="reminderTime"
-										value={eventDetails.reminderTime}
-										onChange={e => handleDataChange(e, 'reminderTime')}
+										type="checkBox"
+										name="reminderEnabled"
+										value={eventDetails.reminderEnabled}
+										checked={eventDetails.reminderEnabled}
+										onChange={e => handleDataChange(e, 'reminderEnabled')}
+										style={{ marginRight: '5px', marginLeft: '5px' }}
 									/>
+									<label> Enabled </label>
+									<div className="reminder-group">
+										<input
+											type="number"
+											className="form-control"
+											placeholder="10"
+											ref="reminderTime"
+											value={eventDetails.reminderTime}
+											onChange={e => handleDataChange(e, 'reminderTime')}
+										/>
 
-									<select
-										value={eventDetails.reminderTimeUnit}
-										onChange={e => handleDataChange(e, 'reminderTimeUnit')}
-									>
-										<option value="minutes">Minutes</option>
-										<option value="hours">Hours</option>
-									</select>
-								</div>
-							</Col>
-						</Row>
+										<select
+											value={eventDetails.reminderTimeUnit}
+											onChange={e => handleDataChange(e, 'reminderTimeUnit')}
+										>
+											<option value="minutes">Minutes</option>
+											<option value="hours">Hours</option>
+										</select>
+									</div>
+								</Col>
+							</Row>
+						)}
 						<Row>
 							<Col xs={12}>
 								<label> Event Notes </label>
@@ -491,6 +494,13 @@ class EventDetails extends Component {
 								<label> All Day </label>
 							</Col>
 						</Row>
+						{!allNotifEnabled && (
+							<Row>
+								<Col xs={12}>
+									<label> All reminders are disabled in Settings.</label>
+								</Col>
+							</Row>
+						)}
 					</Container>
 				</Modal.Body>
 				<Modal.Footer>

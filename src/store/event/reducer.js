@@ -30,6 +30,7 @@ import {
   SET_RICH_NOTIF_EXCLUDE_GUESTS,
   SET_CHAT_STATUS,
   SET_REMINDERS_INFO_REQUEST,
+  SET_ALL_NOTIF_ENABLED,
 } from '../ActionTypes'
 
 let initialState = {
@@ -269,6 +270,12 @@ export default function reduce(state = initialState, action = {}) {
       newState = {
         ...state,
         verifiedNewCalendarData: payload,
+      }
+      break
+    case SET_ALL_NOTIF_ENABLED:
+      newState = {
+        ...state,
+        allNotifEnabled: payload.isEnabled,
       }
       break
     case SET_RICH_NOTIF_ERROR:

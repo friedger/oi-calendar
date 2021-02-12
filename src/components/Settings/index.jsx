@@ -51,10 +51,13 @@ export default class Settings extends Component {
 			user,
 			verifyNewCalendar,
 			verifiedNewCalendarData,
+			allNotifEnabled,
 			richNotifEnabled,
 			richNofifExclude,
 			richNotifError,
 			chatStatus,
+			enableAllNotif,
+			disableAllNotif,
 			enableRichNotif,
 			disableRichNotif,
 			saveRichNotifExcludeGuests,
@@ -92,9 +95,12 @@ export default class Settings extends Component {
 		const NotificationsContent = (
 			<div>
 				<Notifications
+					allNotifEnabled={allNotifEnabled}
 					richNotifEnabled={richNotifEnabled}
 					richNofifExclude={richNofifExclude}
 					richNotifError={richNotifError}
+					enableAllNotif={enableAllNotif}
+					disableAllNotif={disableAllNotif}
 					enableRichNotif={enableRichNotif}
 					disableRichNotif={disableRichNotif}
 					saveRichNotifExcludeGuests={saveRichNotifExcludeGuests}

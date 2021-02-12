@@ -31,6 +31,7 @@ const mapStateToProps = state => {
     currentCalendarLength,
     currentError,
     showRemindersInfo,
+    allNotifEnabled,
     inviteStatus,
   } = events || {}
 
@@ -46,7 +47,7 @@ const mapStateToProps = state => {
 
   const showError = currentError && currentError.msg
   const error = currentError ? currentError.msg : null
-  const showRemindersModal = showRemindersInfo
+  const showRemindersModal = showRemindersInfo && allNotifEnabled
   const showSendInvitesModal = !!inviteStatus
   return {
     events,
@@ -100,9 +101,6 @@ const mapDispatchToProps = dispatch => {
   }
 }
 
-const CalendarContainer = connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Calendar)
+const CalendarContainer = connect(mapStateToProps, mapDispatchToProps)(Calendar)
 
 export default CalendarContainer

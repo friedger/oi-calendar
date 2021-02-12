@@ -9,7 +9,7 @@ class RemindersModal extends React.Component {
   }
 
   render() {
-    const { handleRemindersHide } = this.props
+    const { handleRemindersHide, handleNoPermissionCheck } = this.props
     let notifPermissionGranted = true
     if (Notification.permission !== 'granted') {
       notifPermissionGranted = false
@@ -34,6 +34,9 @@ class RemindersModal extends React.Component {
           )}
         </Modal.Body>
         <Modal.Footer>
+          <Button variant="light" onClick={handleNoPermissionCheck}>
+            Do not show again
+          </Button>
           <Button onClick={handleRemindersHide}>Close</Button>
         </Modal.Footer>
       </Modal>
@@ -43,6 +46,7 @@ class RemindersModal extends React.Component {
 
 RemindersModal.propTypes = {
   handleRemindersHide: PropTypes.func,
+  handleNoPermissionCheck: PropTypes.func,
 }
 
 export default RemindersModal

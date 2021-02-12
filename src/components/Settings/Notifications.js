@@ -13,13 +13,26 @@ export default class Notifications extends Component {
   constructor(props) {
     super(props)
 
-    const { richNotifEnabled, richNofifExclude } = this.props
+    const { allNotifEnabled, richNotifEnabled, richNofifExclude } = this.props
 
     this.state = {
       richNofifExclude: richNofifExclude ? richNofifExclude.join(',') : '',
       richNotifEnabled,
+      allNotifEnabled,
     }
   }
+  handleAllNotificationsChange = event => {
+    const { enableAllNotif, disableAllNotif } = this.props
+    const checked = event.target.checked
+    this.setState({ allNotifEnabled: checked })
+    console.log({ checked })
+    if (checked) {
+      enableAllNotif()
+    } else {
+      disableAllNotif()
+    }
+  }
+
   handleEnrichedNotificationsChange = event => {
     const { enableRichNotif, disableRichNotif } = this.props
     if (event.target.checked) {
@@ -35,8 +48,9 @@ export default class Notifications extends Component {
   }
 
   renderBody = () => {
-    const { richNotifEnabled, richNofifExclude } = this.state
+    const { allNotifEnabled, richNotifEnabled, richNofifExclude } = this.state
     const { richNotifError, chatStatus } = this.props
+    console.log({ allNotifEnabled })
     const checkingChatStatus = chatStatus === 'checking'
     const richNotifErrorMsg = richNotifError
       ? renderMatrixError('Rich notifications not allowed.', richNotifError)
@@ -46,20 +60,31 @@ export default class Notifications extends Component {
         <Form.Group controlId="formBasicChecbox">
           <Form.Check
             type="checkbox"
+            label="Use notifications"
+            defaultChecked={allNotifEnabled}
+            onChange={this.handleAllNotificationsChange}
+          />
+        </Form.Group>
+        <Form.Group controlId="formBasicChecbox">
+          <Form.Check
+            disabled={!allNotifEnabled}
+            type="checkbox"
             label="Enable Enriched Notifications"
             defaultChecked={richNotifEnabled}
             onChange={this.handleEnrichedNotificationsChange}
           />
         </Form.Group>
-        <Form.Group controlId="formEcludedGuests">
-          <Form.Label>Excluded guests</Form.Label>
-          <Form.Control
-            type="email"
-            defaultValue={richNofifExclude}
-            placeholder="bob.id, alice.id.blockstack, ..."
-            onBlur={this.handleExcludedGuestsChange}
-          />
-        </Form.Group>
+        {allNotifEnabled && (
+          <Form.Group controlId="formEcludedGuests">
+            <Form.Label>Excluded guests</Form.Label>
+            <Form.Control
+              type="email"
+              defaultValue={richNofifExclude}
+              placeholder="bob.id, alice.id.blockstack, ..."
+              onBlur={this.handleExcludedGuestsChange}
+            />
+          </Form.Group>
+        )}
         {checkingChatStatus && (
           <>
             Connecting to OI Chat ..
@@ -74,7 +99,7 @@ export default class Notifications extends Component {
   render() {
     return (
       <Card style={{}}>
-        <Card.Header>Enriched Notifications</Card.Header>
+        <Card.Header>Notifications</Card.Header>
         <Card.Body>{this.renderBody()}</Card.Body>
       </Card>
     )

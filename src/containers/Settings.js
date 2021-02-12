@@ -7,6 +7,7 @@ import {
   enableRichNotif,
   disableRichNotif,
   saveRichNotifExcludeGuests,
+  updateAllNotifEnabled,
 } from '../store/event/eventActionLazy'
 
 import {
@@ -32,6 +33,7 @@ export default connect(
     const {
       calendars,
       verifiedNewCalendarData,
+      allNotifEnabled,
       richNotifEnabled,
       richNofifExclude,
       richNotifError,
@@ -45,6 +47,7 @@ export default connect(
       addCalendarUrl,
       user,
       verifiedNewCalendarData,
+      allNotifEnabled,
       richNotifEnabled,
       richNofifExclude,
       richNotifError,
@@ -104,6 +107,12 @@ export default connect(
       },
       verifyNewCalendar: calendar => {
         dispatch(verifyNewCalendar(calendar))
+      },
+      enableAllNotif: () => {
+        dispatch(updateAllNotifEnabled(true))
+      },
+      disableAllNotif: () => {
+        dispatch(updateAllNotifEnabled(false))
       },
       enableRichNotif: () => {
         dispatch(enableRichNotif())

@@ -22,6 +22,7 @@ import {
   SET_CHAT_STATUS,
   SET_REMINDERS_INFO_REQUEST,
   SET_CURRENT_GUESTS,
+  SET_ALL_NOTIF_ENABLED,
 } from '../ActionTypes'
 
 import { defaultEvents } from '../../core/eventDefaults'
@@ -251,6 +252,10 @@ export function showInstructionsAction(show) {
   return { type: SHOW_INSTRUCTIONS, payload: { show } }
 }
 
+function setAllNotifEnabled(isEnabled) {
+  return { type: SET_ALL_NOTIF_ENABLED, payload: { isEnabled } }
+}
+
 function setRichNotifEnabled(isEnabled, error) {
   return { type: SET_RICH_NOTIF_ENABLED, payload: { isEnabled, error } }
 }
@@ -271,6 +276,14 @@ export function initializePreferences() {
         showInstructionsAction(
           preferences && preferences.showInstructions
             ? preferences.showInstructions.general
+            : true
+        )
+      )
+
+      dispatch(
+        setAllNotifEnabled(
+          preferences.hasOwnProperty('allNotifEnabled')
+            ? preferences.allNotifEnabled
             : true
         )
       )
@@ -296,6 +309,14 @@ export function setRemindersInfoRequest() {
 
 export function unsetRemindersInfoRequest() {
   return { type: SET_REMINDERS_INFO_REQUEST, payload: { show: undefined } }
+}
+
+export function updateAllNotifEnabled(status) {
+  return async (dispatch, getState) => {
+    const { userOwnedStorage } = getState().auth
+    userOwnedStorage.savePreferences({ allNotfiEnabled: status })
+    dispatch(setAllNotifEnabled(status))
+  }
 }
 
 export function enableRichNotif() {

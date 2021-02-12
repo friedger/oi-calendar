@@ -38,6 +38,7 @@ const mapStateToProps = state => {
   const inviteStatus = state.events.inviteStatus
   const addingConferencing = state.events.addingConferencing
   const removingConferencing = state.events.removingConferencing
+  const allNotifEnabled = state.events.allNotifEnabled
   const richNotifEnabled = state.events.richNotifEnabled
   const richNofifExclude = state.events.richNofifExclude
 
@@ -49,6 +50,7 @@ const mapStateToProps = state => {
     editMode: currentEventType,
     addingConferencing,
     removingConferencing,
+    allNotifEnabled,
     richNotifEnabled,
     richNofifExclude,
     calendars,

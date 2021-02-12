@@ -1,6 +1,9 @@
 import { connect } from 'react-redux'
 
-import { unsetRemindersInfoRequest } from '../store/event/eventActionLazy'
+import {
+  unsetRemindersInfoRequest,
+  updateAllNotifEnabled,
+} from '../store/event/eventActionLazy'
 import RemindersModal from '../components/Calendar/RemindersModal'
 
 export default connect(
@@ -12,6 +15,9 @@ export default connect(
     return {
       handleRemindersHide: () => {
         dispatch(unsetRemindersInfoRequest())
+      },
+      handleNoPermissionCheck: () => {
+        dispatch(updateAllNotifEnabled(false))
       },
     }
   }
