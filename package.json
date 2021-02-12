@@ -2,7 +2,7 @@
     "homepage": "https://cal.openintents.org",
     "name": "oi-calendar",
     "author": "friedger@gmail.com",
-    "version": "0.10.0",
+    "version": "0.10.1",
     "dependencies": {
         "@fortawesome/fontawesome-svg-core": "^1.2.15",
         "@fortawesome/free-solid-svg-icons": "^5.7.2",
