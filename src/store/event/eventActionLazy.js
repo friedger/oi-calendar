@@ -314,7 +314,7 @@ export function unsetRemindersInfoRequest() {
 export function updateAllNotifEnabled(status) {
   return async (dispatch, getState) => {
     const { userOwnedStorage } = getState().auth
-    userOwnedStorage.savePreferences({ allNotfiEnabled: status })
+    userOwnedStorage.savePreferences({ allNotifEnabled: status })
     dispatch(setAllNotifEnabled(status))
   }
 }

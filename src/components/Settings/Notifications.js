@@ -60,31 +60,28 @@ export default class Notifications extends Component {
         <Form.Group controlId="formBasicChecbox">
           <Form.Check
             type="checkbox"
-            label="Use notifications"
+            label="Use browser notifications"
             defaultChecked={allNotifEnabled}
             onChange={this.handleAllNotificationsChange}
           />
         </Form.Group>
         <Form.Group controlId="formBasicChecbox">
           <Form.Check
-            disabled={!allNotifEnabled}
             type="checkbox"
             label="Enable Enriched Notifications"
             defaultChecked={richNotifEnabled}
             onChange={this.handleEnrichedNotificationsChange}
           />
         </Form.Group>
-        {allNotifEnabled && (
-          <Form.Group controlId="formEcludedGuests">
-            <Form.Label>Excluded guests</Form.Label>
-            <Form.Control
-              type="email"
-              defaultValue={richNofifExclude}
-              placeholder="bob.id, alice.id.blockstack, ..."
-              onBlur={this.handleExcludedGuestsChange}
-            />
-          </Form.Group>
-        )}
+        <Form.Group controlId="formEcludedGuests">
+          <Form.Label>Excluded guests</Form.Label>
+          <Form.Control
+            type="email"
+            defaultValue={richNofifExclude}
+            placeholder="bob.id, alice.id.blockstack, ..."
+            onBlur={this.handleExcludedGuestsChange}
+          />
+        </Form.Group>
         {checkingChatStatus && (
           <>
             Connecting to OI Chat ..

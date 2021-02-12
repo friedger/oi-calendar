@@ -387,40 +387,39 @@ class EventDetails extends Component {
 								/>
 							</Col>
 						</Row>
-						{allNotifEnabled && (
-							<Row>
-								<Col xs={12}>
-									<label> {getLabelForReminder()} </label>
+						<Row>
+							<Col xs={12}>
+								<label> {getLabelForReminder()} </label>
+								<input
+									type="checkBox"
+									name="reminderEnabled"
+									value={eventDetails.reminderEnabled}
+									checked={eventDetails.reminderEnabled}
+									onChange={e => handleDataChange(e, 'reminderEnabled')}
+									style={{ marginRight: '5px', marginLeft: '5px' }}
+								/>
+								<label> Enabled </label>
+								<div className="reminder-group">
 									<input
-										type="checkBox"
-										name="reminderEnabled"
-										value={eventDetails.reminderEnabled}
-										checked={eventDetails.reminderEnabled}
-										onChange={e => handleDataChange(e, 'reminderEnabled')}
-										style={{ marginRight: '5px', marginLeft: '5px' }}
+										type="number"
+										className="form-control"
+										placeholder="10"
+										ref="reminderTime"
+										value={eventDetails.reminderTime}
+										onChange={e => handleDataChange(e, 'reminderTime')}
 									/>
-									<label> Enabled </label>
-									<div className="reminder-group">
-										<input
-											type="number"
-											className="form-control"
-											placeholder="10"
-											ref="reminderTime"
-											value={eventDetails.reminderTime}
-											onChange={e => handleDataChange(e, 'reminderTime')}
-										/>
 
-										<select
-											value={eventDetails.reminderTimeUnit}
-											onChange={e => handleDataChange(e, 'reminderTimeUnit')}
-										>
-											<option value="minutes">Minutes</option>
-											<option value="hours">Hours</option>
-										</select>
-									</div>
-								</Col>
-							</Row>
-						)}
+									<select
+										value={eventDetails.reminderTimeUnit}
+										onChange={e => handleDataChange(e, 'reminderTimeUnit')}
+									>
+										<option value="minutes">Minutes</option>
+										<option value="hours">Hours</option>
+									</select>
+								</div>
+							</Col>
+						</Row>
+
 						<Row>
 							<Col xs={12}>
 								<label> Event Notes </label>
@@ -497,7 +496,7 @@ class EventDetails extends Component {
 						{!allNotifEnabled && (
 							<Row>
 								<Col xs={12}>
-									<label> All reminders are disabled in Settings.</label>
+									<small>Browser notifaction settings are ignored.</small>
 								</Col>
 							</Row>
 						)}
