@@ -13,9 +13,7 @@ const simpleMatrixMessage = (msg, uid) => {
     msgtype: 'm.text',
     body: `${msg}`,
     format: 'org.matrix.custom.html',
-    formatted_body: `<a href="${
-      window.location.origin
-    }/?intent=view&uid=${uid}">${msg}</a>`,
+    formatted_body: `<a href="${window.location.origin}/?intent=view&uid=${uid}">${msg}</a>`,
   }
 }
 

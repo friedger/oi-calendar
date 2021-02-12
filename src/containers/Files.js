@@ -16,9 +16,6 @@ const mapDispatchToProps = (dispatch, redux) => {
   }
 }
 
-const FilesContainer = connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Files)
+const FilesContainer = connect(mapStateToProps, mapDispatchToProps)(Files)
 
 export default FilesContainer

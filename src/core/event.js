@@ -192,9 +192,7 @@ function sendInviteMessage(
     r: roomId,
     s: userAppAccount,
   })
-  const ahref = `<a href='${
-    window.location.origin
-  }${queryString}"'>${title}</a>`
+  const ahref = `<a href='${window.location.origin}${queryString}"'>${title}</a>`
   return userSessionChat.sendMessage(guestUsername, roomId, {
     msgtype: 'm.text',
     body: `You are invited to ${title}`,

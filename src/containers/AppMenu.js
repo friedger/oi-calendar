@@ -22,9 +22,6 @@ const mapStateToProps = state => {
   return { username, signedIn, page }
 }
 
-const AppMenuContainer = connect(
-  mapStateToProps,
-  null
-)(AppMenu)
+const AppMenuContainer = connect(mapStateToProps, null)(AppMenu)
 
 export default AppMenuContainer
