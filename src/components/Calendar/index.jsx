@@ -10,7 +10,7 @@ import {
 	Button,
 	Alert,
 } from 'react-bootstrap'
-import BigCalendar from 'react-big-calendar'
+import { Calendar, momentLocalizer } from 'react-big-calendar'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
 import queryString from 'query-string'
 // Containers
@@ -21,10 +21,9 @@ import FAQs from '../FAQ'
 
 import { uuid } from '../../core/eventFN'
 
-let localizer = BigCalendar.momentLocalizer(moment)
-let allViews = Object.keys(BigCalendar.Views).map(k => BigCalendar.Views[k])
+let localizer = momentLocalizer(moment)
 
-class Calendar extends Component {
+class OICalendar extends Component {
 	constructor(props) {
 		super(props)
 		this.bound = [
@@ -154,11 +153,10 @@ class Calendar extends Component {
 						/>
 					)}
 				</div>
-				<BigCalendar
+				<Calendar
 					localizer={localizer}
 					selectable={this.props.signedIn}
 					events={events}
-					views={allViews}
 					step={60}
 					showMultiDayTimes
 					defaultDate={new Date(moment())}
@@ -327,10 +325,10 @@ class Calendar extends Component {
 	}
 }
 
-Calendar.propTypes = {
+OICalendar.propTypes = {
 	location: PropTypes.object,
 	public: PropTypes.bool,
 	showMyPublicCalendar: PropTypes.func,
 }
 
-export default Calendar
+export default OICalendar

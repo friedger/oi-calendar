@@ -1,5 +1,5 @@
 import { SHOW_FILES, SET_FILES } from '../ActionTypes'
-import { getAppBucketUrl } from 'blockstack'
+import { getBucketUrl } from '@stacks/storage'
 
 function showFilesScreen(show) {
   return { type: SHOW_FILES, payload: { show } }
@@ -40,7 +40,7 @@ export function loadingFiles() {
 }
 
 function initFiles(user) {
-  return getAppBucketUrl(user.hubUrl, user.appPrivateKey).then(url => {
+  return getBucketUrl(user.hubUrl, user.appPrivateKey).then(url => {
     const files = {
       appBucketUrl: url,
       calendars: {

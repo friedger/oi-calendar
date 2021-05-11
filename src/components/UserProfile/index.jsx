@@ -45,6 +45,7 @@ const UserProfile = props => {
 				signIn={props.userSignIn}
 				signOut={props.userSignOut}
 				isSignedIn={props.isSignedIn}
+				includeBlockstackLogo={false}
 			/>
 		</div>
 	)

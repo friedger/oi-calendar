@@ -1,7 +1,7 @@
 import { connect } from 'react-redux'
 
 // Components
-import Calendar from '../components/Calendar'
+import OICalendar from '../components/Calendar'
 
 import { setNewCurrentEvent } from '../store/event/eventAction'
 import {
@@ -101,6 +101,9 @@ const mapDispatchToProps = dispatch => {
   }
 }
 
-const CalendarContainer = connect(mapStateToProps, mapDispatchToProps)(Calendar)
+const CalendarContainer = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(OICalendar)
 
 export default CalendarContainer

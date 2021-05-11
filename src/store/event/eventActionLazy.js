@@ -1,5 +1,5 @@
 import queryString from 'query-string'
-import { UserSession } from 'blockstack'
+import { UserSession, AppConfig } from '@stacks/connect'
 
 import {
   AUTH_CONNECTED,
@@ -50,7 +50,6 @@ import {
 
 // Reminders
 import { addReminder, initReminders } from '../../reminder'
-import { AppConfig } from 'blockstack/lib/auth'
 import { push } from 'connected-react-router'
 
 // #########################

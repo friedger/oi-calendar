@@ -2,14 +2,13 @@ import React, { Component } from 'react'
 import { PropTypes } from 'prop-types'
 import moment from 'moment'
 import { Card, ProgressBar, Button, Alert } from 'react-bootstrap'
-import BigCalendar from 'react-big-calendar'
+import { Calendar, momentLocalizer } from 'react-big-calendar'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
 import queryString from 'query-string'
 // Containers
 import EventDetailsContainer from '../../containers/EventDetails'
 
-let localizer = BigCalendar.momentLocalizer(moment)
-let allViews = Object.keys(BigCalendar.Views).map(k => BigCalendar.Views[k])
+let localizer = momentLocalizer(moment)
 
 class PublicCalendar extends Component {
 	constructor(props) {
@@ -111,13 +110,12 @@ class PublicCalendar extends Component {
 						/>
 					)}
 				</div>
-				<BigCalendar
+				<Calendar
 					localizer={localizer}
 					selectable={
 						this.props.signedIn && !myPublicCalendar && !publicCalendar
 					}
 					events={events}
-					views={allViews}
 					step={60}
 					showMultiDayTimes
 					defaultDate={new Date(moment())}

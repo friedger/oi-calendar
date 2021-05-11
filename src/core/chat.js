@@ -1,11 +1,15 @@
-import {
-  config,
-  publicKeyToAddress,
-  getPublicKeyFromPrivate,
-  resolveZoneFileToProfile,
-} from 'blockstack'
+import { resolveZoneFileToProfile } from '@stacks/profile'
+import { publicKeyToAddress } from '@stacks/transactions'
+import { getPublicKeyFromPrivate } from '@stacks/encryption'
+
+import { BnsApi, Configuration } from '@stacks/blockchain-api-client'
+
 import { createClient } from 'matrix-js-sdk'
 
+const config = new Configuration({
+  basePath: 'https://stacks-node-api.mainnet.stacks.co',
+})
+const bnsApi = new BnsApi({ config })
 export class UserSessionChat {
   constructor(selfRoomId, userSession, userOwnedStorage) {
     this.selfRoomId = selfRoomId
@@ -265,7 +269,7 @@ export function lookupProfile(username) {
     return Promise.reject(new Error('Invalid username'))
   }
   console.log('username', username)
-  let lookupPromise = config.network.getNameInfo(username)
+  let lookupPromise = bnsApi.getNameInfo({ name: username })
   return lookupPromise.then(
     responseJSON => {
       if (

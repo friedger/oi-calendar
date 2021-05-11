@@ -1,6 +1,5 @@
 import { AUTH_SIGN_IN, AUTH_SIGN_OUT } from '../ActionTypes'
-import { UserSession } from 'blockstack'
-import { AppConfig } from 'blockstack/lib/auth'
+import { UserSession, AppConfig, showConnect } from '@stacks/connect'
 
 export function redirectedToSignIn() {
   return { type: AUTH_SIGN_IN }
@@ -17,7 +16,13 @@ export function signUserIn(store) {
       )
     )
     try {
-      userSession.redirectToSignIn()
+      showConnect({
+        userSession,
+        appDetails: {
+          name: 'OI Calendar',
+          icon: 'https://cal.openintents.org/android-chrome-192x192.png',
+        },
+      })
       dispatch(redirectedToSignIn())
     } catch (e) {
       console.error(e)

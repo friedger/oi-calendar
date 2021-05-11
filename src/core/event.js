@@ -1,14 +1,11 @@
 import { uuid, guaranteeHexColor, sharedUrl, objectToArray } from './eventFN'
 
-import {
-  lookupProfile,
-  makeECPrivateKey,
-  getPublicKeyFromPrivate,
-} from 'blockstack'
+import { lookupProfile } from '@stacks/connect'
+
+import { getPublicKeyFromPrivate, makeECPrivateKey } from '@stacks/encryption'
 import { iCalParseEvents, icsFromEvents } from './ical'
 import { parseQueryString, encodeQueryString } from '../utils'
 
-import { getUserAppFileUrl } from 'blockstack/lib/storage'
 import { defaultCalendars } from './eventDefaults'
 
 // ################
@@ -561,4 +558,17 @@ export function fetchIcsUrl(calendarName) {
   const path = parts[0] + '/AllEvents.ics'
   const username = parts[1]
   return getUserAppFileUrl(path, username, window.location.origin)
+}
+
+async function getUserAppFileUrl(path, username, appOrigin, zoneFileLookupURL) {
+  const profile = await lookupProfile({ username, zoneFileLookupURL })
+  let bucketUrl
+  if (profile.hasOwnProperty('apps')) {
+    if (profile.apps.hasOwnProperty(appOrigin)) {
+      const url = profile.apps[appOrigin]
+      const bucket = url.replace(/\/?(\?|#|$)/, '/$1')
+      bucketUrl = `${bucket}${path}`
+    }
+  }
+  return bucketUrl
 }

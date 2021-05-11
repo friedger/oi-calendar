@@ -114,7 +114,7 @@ BlockstackSignInButton.propTypes = {
 BlockstackSignInButton.defaultProps = {
 	renderNothing: false,
 	signOutBtnText: 'Logout',
-	signInBtnText: 'Blockstack Login',
+	signInBtnText: 'Use your own calendar',
 	includeBlockstackLogo: true,
 	defaultStyle: null,
 	style: { padding: '8.5px' },

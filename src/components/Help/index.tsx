@@ -1,11 +1,11 @@
-import * as React from 'react'
-import * as blockstack from 'blockstack'
+import React from 'react'
+import { Profile } from '@stacks/profile'
 import FAQs from '../FAQ'
 import QuestionsWeb from './QuestionsWeb'
 import QuestionsDevs from './QuestionsDevs'
 
 interface IProps {
-	user?: blockstack.Profile
+	user?: Profile
 }
 
 const Help: React.FC<IProps> = (props: IProps) => (
