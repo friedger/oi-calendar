@@ -1,7 +1,7 @@
 import { uuid, guaranteeHexColor, sharedUrl, objectToArray } from './eventFN'
 
 import { lookupProfile } from '@stacks/connect'
-
+import { Storage } from '@stacks/storage'
 import { getPublicKeyFromPrivate, makeECPrivateKey } from '@stacks/encryption'
 import { iCalParseEvents, icsFromEvents } from './ical'
 import { parseQueryString, encodeQueryString } from '../utils'
@@ -221,28 +221,26 @@ export function respondToInvite(
 // Blockstack helpers
 // ###########################################################################
 
-function fetchFromBlockstack(userSession, src, config, privateKey, errorData) {
-  return userSession
+function fetchFromBlockstack(userStorage, src, config, privateKey, errorData) {
+  return userStorage
     .getFile(src, config)
     .then(
       str => {
         if (str && privateKey) {
-          str = userSession.decryptContent(str, { privateKey })
+          str = userStorage.decryptContent(str, { privateKey })
         }
         return str
       },
       error => {
-        console.error(
-          'failed to fetch ',
-          src,
-          config,
-          !!privateKey,
+        console.error('failed to fetch ', src, config, !!privateKey, {
           error,
-          errorData
-        )
-        return Promise.reject(
-          new Error(`Couldn't fetch from fetchFromBlockstack`)
-        )
+          errorData,
+        })
+        if (error.code !== 'does_not_exist') {
+          return Promise.reject(
+            new Error(`Couldn't fetch from fetchFromBlockstack`)
+          )
+        }
       }
     )
     .then(d => {
@@ -253,11 +251,11 @@ function fetchFromBlockstack(userSession, src, config, privateKey, errorData) {
     })
 }
 
-function putOnBlockstack(userSession, src, text, config) {
+function putOnBlockstack(userStorage, src, text, config) {
   if (text && typeof text !== 'string') {
     text = JSON.stringify(text)
   }
-  return userSession.putFile(src, text, config)
+  return userStorage.putFile(src, text, config)
 }
 
 function applyCalendarDefaults(calendar, user) {
@@ -318,7 +316,7 @@ export function handleIntentsInQueryString(
     } = parseQueryString(query)
     if (userSession && u && e && p) {
       // userSession shouldn't be needed here
-      return loadCalendarEventFromUser(userSession, u, e, p).then(
+      return loadCalendarEventFromUser(new Storage(userSession), u, e, p).then(
         whenPrivateEvent
       )
     } else if (intent) {
@@ -340,9 +338,14 @@ export function handleIntentsInQueryString(
   }
 }
 
-function loadCalendarEventFromUser(username, eventUid, privateKey) {
+function loadCalendarEventFromUser(
+  userStorage,
+  username,
+  eventUid,
+  privateKey
+) {
   return fetchFromBlockstack(
-    this.userSession,
+    userStorage,
     sharedUrl(eventUid),
     { decrypt: false, username },
     privateKey,
@@ -375,24 +378,28 @@ export function removePublicEvent(eventUid, publicEvents) {
 
 export class UserOwnedStorage {
   constructor(userSession) {
+    if (!userSession) {
+      throw new Error('UserSession required')
+    }
     this.userSession = userSession
+    this.userStorage = new Storage({ userSession })
   }
 
   fetchContactData() {
-    return fetchFromBlockstack(this.userSession, 'Contacts').then(contacts => {
+    return fetchFromBlockstack(this.userStorage, 'Contacts').then(contacts => {
       return contacts || {}
     })
   }
 
   publishContacts(contacts) {
-    return putOnBlockstack(this.userSession, 'Contacts', contacts)
+    return putOnBlockstack(this.userStorage, 'Contacts', contacts)
   }
 
   // ###########################################################################
   // List of calendars
   // ###########################################################################
   fetchCalendars() {
-    return fetchFromBlockstack(this.userSession, 'Calendars').then(
+    return fetchFromBlockstack(this.userStorage, 'Calendars').then(
       calendars => {
         if (!Array.isArray(calendars)) {
           calendars = objectToArray(calendars)
@@ -414,7 +421,7 @@ export class UserOwnedStorage {
       console.log('adding calendar', defaultCalendars[0])
       calendars.splice(0, 0, defaultCalendars[0])
     }
-    putOnBlockstack(this.userSession, 'Calendars', calendars)
+    putOnBlockstack(this.userStorage, 'Calendars', calendars)
   }
 
   // ###########################################################################
@@ -434,16 +441,16 @@ export class UserOwnedStorage {
       config = { events: data.events }
     } else if (type === 'blockstack-user') {
       config = { decrypt: false, username: data.user }
-      fn = (src, config) => fetchFromBlockstack(this.userSession, src, config)
+      fn = (src, config) => fetchFromBlockstack(this.userStorage, src, config)
     } else if (type === 'private') {
-      fn = (src, config) => fetchFromBlockstack(this.userSession, src, config)
+      fn = (src, config) => fetchFromBlockstack(this.userStorage, src, config)
     }
 
     return fn(data.src, config)
       .then(objectToArray)
       .then(events => {
         if (!events && type === 'private' && name === 'default') {
-          putOnBlockstack(this.userSession, data.src, defaultEvents)
+          putOnBlockstack(this.userStorage, data.src, defaultEvents)
           events = Object.values(defaultEvents)
         }
         return (events || [])
@@ -457,7 +464,7 @@ export class UserOwnedStorage {
 
   loadPublicCalendar(calendarName, username) {
     const path = calendarName + '/AllEvents'
-    return fetchFromBlockstack(this.userSession, path, {
+    return fetchFromBlockstack(this.userStorage, path, {
       username,
       decrypt: false,
     }).then(allEvents => {
@@ -473,7 +480,7 @@ export class UserOwnedStorage {
   }
 
   publishCalendar(eventsString, filepath, contentType) {
-    putOnBlockstack(this.userSession, filepath, eventsString, {
+    putOnBlockstack(this.userStorage, filepath, eventsString, {
       encrypt: false,
       contentType,
     }).then(
@@ -488,7 +495,7 @@ export class UserOwnedStorage {
 
   publishEvents(param, updatePublicEvents) {
     const publicEventPath = 'public/AllEvents'
-    fetchFromBlockstack(this.userSession, publicEventPath, {
+    fetchFromBlockstack(this.userStorage, publicEventPath, {
       decrypt: false,
     }).then(publicEvents => {
       if (!publicEvents) {
@@ -522,14 +529,14 @@ export class UserOwnedStorage {
       }, {})
 
     return putOnBlockstack(
-      this.userSession,
+      this.userStorage,
       calendarName + '/AllEvents',
       calendarEvents
     )
   }
 
   fetchPreferences() {
-    return fetchFromBlockstack(this.userSession, 'Preferences').then(
+    return fetchFromBlockstack(this.userStorage, 'Preferences').then(
       prefs => {
         if (prefs) {
           return prefs
@@ -547,7 +554,7 @@ export class UserOwnedStorage {
   savePreferences(prefAttributes) {
     return this.fetchPreferences().then(preferences => {
       preferences = Object.assign(preferences, prefAttributes)
-      return putOnBlockstack(this.userSession, 'Preferences', preferences)
+      return putOnBlockstack(this.userStorage, 'Preferences', preferences)
     })
   }
 }

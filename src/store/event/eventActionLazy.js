@@ -87,7 +87,7 @@ export function initializeChat(userSession, userOwnedStorage) {
 // LOAD USER DATA
 // ################
 
-function authenticatedAction(userData, userSession, userOwnedStorage) {
+export function authenticatedAction(userData, userSession, userOwnedStorage) {
   return {
     type: AUTH_CONNECTED,
     payload: { user: userData, userSession, userOwnedStorage },

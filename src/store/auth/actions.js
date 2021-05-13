@@ -1,6 +1,7 @@
 import { AUTH_SIGN_IN, AUTH_SIGN_OUT } from '../ActionTypes'
 import { UserSession, AppConfig, showConnect } from '@stacks/connect'
-
+import { authenticatedAction } from '../../store/event/eventActionLazy'
+import { UserOwnedStorage } from '../../core/event'
 export function redirectedToSignIn() {
   return { type: AUTH_SIGN_IN }
 }
@@ -21,6 +22,16 @@ export function signUserIn(store) {
         appDetails: {
           name: 'OI Calendar',
           icon: 'https://cal.openintents.org/android-chrome-192x192.png',
+        },
+        onFinish: ({ userSession }) => {
+          const userData = userSession.loadUserData()
+          dispatch(
+            authenticatedAction(
+              userData,
+              userSession,
+              new UserOwnedStorage(userSession)
+            )
+          )
         },
       })
       dispatch(redirectedToSignIn())

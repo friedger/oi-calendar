@@ -8,7 +8,7 @@
         "@fortawesome/free-solid-svg-icons": "^5.15.3",
         "@fortawesome/react-fontawesome": "^0.1.14",
         "@stacks/blockchain-api-client": "^0.59.0",
-        "@stacks/connect": "4.3.18",
+        "@stacks/connect": "^5.0.5",
         "@stacks/profile": "^1.5.0-alpha.0",
         "@stacks/storage": "^1.5.0-alpha.0",
         "@stacks/transactions": "^1.4.1",

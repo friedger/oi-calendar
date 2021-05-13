@@ -2,12 +2,11 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { Modal, Button, FormCheck, Row, Col, Container } from 'react-bootstrap'
 import moment from 'moment'
+import Datetime from 'react-datetime'
 
 // Styles
 import '../../css/datetime.css'
 import '../../css/EventDetails.css'
-
-const Datetime = require('react-datetime')
 
 // TODO this should not be exported as it is only for UI
 // the eventDetails needs to hold the guests as array
